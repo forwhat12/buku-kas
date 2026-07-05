@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Kas Pertanian Pro</title>
+    <style>
+        /* TEMA WARNA 60-30-10 (DARK MODE SEJUK) */
+        :root {
+            --bg-60: #0f172a;
+            --surface-30: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+        
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-60); color: var(--text-main); margin: 0; padding: 12px 8px; font-size: 14px; }
+        h2 { text-align: center; color: var(--text-main); font-size: 18px; margin-bottom: 15px; font-weight: 600; letter-spacing: 1px;}
+        
+        /* Dashboard */
+        .dashboard { display: flex; gap: 8px; margin-bottom: 15px; }
+        .card { flex: 1; background: var(--surface-30); padding: 12px 5px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
+        .card h3 { margin: 0 0 5px 0; font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+        .card p { margin: 0; font-size: 13px; font-weight: 700; word-break: break-all; }
+        .persen-badge { font-size: 10px; margin-top: 4px; font-weight: 700; }
+        .text-green { color: var(--accent-green); }
+        .text-red { color: var(--accent-red); }
+
+        /* Area Form */
+        .form-container { background: var(--surface-30); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        
+        .guide-box { background-color: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--accent-blue); padding: 10px; margin-bottom: 15px; border-radius: 4px; font-size: 11px; color: #cbd5e1; }
+        .form-group { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;}
+        .col { flex: 1; }
+        
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 12px; color: var(--text-muted); }
+        input { 
+            width: 100%; padding: 10px 8px; background-color: var(--bg-60); border: 1px solid var(--border-color); 
+            border-radius: 6px; box-sizing: border-box; color: var(--text-main); font-size: 13px; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent-blue); }
+        
+        /* Huruf besar di awal kata saat mengetik */
+        #keterangan { text-transform: capitalize; }
+
+        /* Style untuk kolom yang belum bisa diakses */
+        input:disabled, button:disabled { opacity: 0.4; cursor: not-allowed; background-color: #0f172a; border-color: var(--border-color); }
+        .disabled-area { opacity: 0.4; pointer-events: none; }
+
+        #jenisIndikator { display: inline-block; margin-top: 4px; font-size: 10px; padding: 4px 6px; border-radius: 4px; background-color: var(--bg-60); color: var(--text-muted); border: 1px dashed var(--border-color); }
+
+        .unit-group { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; transition: 0.3s;}
+        .unit-btn { background-color: var(--bg-60); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; font-size: 11px; cursor: pointer; flex: 1; text-align: center; }
+        .unit-btn.active { background-color: var(--accent-blue); color: white; border-color: var(--accent-blue); font-weight: bold; }
+
+        .btn-submit { background-color: var(--accent-blue); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; width: 100%; font-size: 13px; margin-top: 5px; transition: 0.3s;}
+        .btn-cancel { background-color: #475569; margin-top: 8px; display: none; width: 100%; padding: 10px; border:none; border-radius:6px; color:white;}
+
+        /* Tabel - Rapat & Pas Tulisan */
+        .table-container { background: var(--surface-30); border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { padding: 8px 6px; border: 1px solid var(--border-color); vertical-align: middle; }
+        
+        th { background-color: #0f172a; font-weight: 600; color: var(--text-muted); font-size: 10px; text-transform: uppercase; text-align: center;}
+        
+        /* Menggunakan width 1% dan nowrap agar kolom mengecil / pas dengan isi teks */
+        .col-ket { width: auto; background-color: rgba(255,255,255, 0.04); font-weight: 500; }
+        .col-jml { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.01); }
+        .col-sat { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.03); color: var(--accent-blue); font-weight:bold;}
+        .col-uang { width: 1%; white-space: nowrap; text-align: right; background-color: rgba(255,255,255, 0.01); font-weight: bold;}
+        .col-tgl { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.03); font-size: 10px; color: var(--text-muted); }
+        .col-aksi { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.01); }
+
+        .action-flex { display: flex; gap: 4px; align-items: center; justify-content: center;}
+        .action-btn { padding: 5px; border-radius: 4px; border: none; font-size: 10px; min-width: 25px; color: white;}
+        .btn-edit { background-color: #d97706; }
+        .btn-delete { background-color: var(--accent-red); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Buku Kas Pertanian Pro</h2>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="card">
+            <h3>H = Hasil (Masuk)</h3>
+            <p class="text-green" id="dashPemasukan">0</p>
+        </div>
+        <div class="card">
+            <h3>B = Beli (Keluar)</h3>
+            <p class="text-red" id="dashPengeluaran">0</p>
+        </div>
+        <div class="card">
+            <h3>Saldo Bersih</h3>
+            <p id="dashSaldo" style="transition: 0.3s;">0</p>
+            <div id="dashPersen" class="persen-badge text-muted">- 0%</div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+        <div class="guide-box">
+            <strong>💡 Panduan Pengisian Berurutan:</strong><br>
+            Ketik <b>B</b> (Beli) atau <b>H</b> (Hasil) di awal keterangan untuk membuka gembok kolom selanjutnya.
+        </div>
+
+        <form id="transaksiForm">
+            <input type="hidden" id="editId">
+            <input type="hidden" id="jumlahUangAsli">
+            <input type="hidden" id="satuanPilihan" value="Pcs"> <!-- Default jadi Pcs -->
+            
+            <!-- Baris 1: Keterangan & Jumlah -->
+            <div class="form-group">
+                <div class="col" style="flex: 2;">
+                    <label>Keterangan Barang</label>
+                    <input type="text" id="keterangan" placeholder="Cth: B Bibit" required autocomplete="off">
+                    <div id="jenisIndikator">Tunggu ketikan...</div>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <label>Jumlah</label>
+                    <input type="number" step="any" id="kuantitas" placeholder="0" required disabled>
+                </div>
+            </div>
+
+            <!-- Baris 2: Satuan -->
+            <label>Pilihan Satuan</label>
+            <div class="unit-group disabled-area" id="unitGroup">
+                <button type="button" class="unit-btn active" data-unit="Pcs">Pcs</button>
+                <button type="button" class="unit-btn" data-unit="Kg">Kg</button>
+                <button type="button" class="unit-btn" data-unit="Liter">Liter</button>
+                <button type="button" class="unit-btn" data-unit="Meter">Meter</button>
+                <button type="button" class="unit-btn" data-unit="Paket">Paket</button>
+            </div>
+
+            <!-- Baris 3: Total Uang & Tanggal -->
+            <div class="form-group">
+                <div class="col" style="flex: 1.8;">
+                    <label>Total Uang (Rp)</label>
+                    <input type="text" id="jumlahUangTampil" inputmode="numeric" placeholder="0" required disabled>
+                </div>
+                <div class="col" style="flex: 1.2;">
+                    <label>Tanggal</label>
+                    <input type="date" id="tanggal" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnSubmit" disabled>Simpan Data</button>
+            <button type="button" class="btn-cancel" id="btnCancel" onclick="batalEdit()">Batal Revisi</button>
+        </form>
+    </div>
+
+    <!-- Tabel -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-ket">Barang</th>
+                    <th class="col-jml">Jml</th>
+                    <th class="col-sat">Sat</th>
+                    <th class="col-uang">Total (Rp)</th>
+                    <th class="col-tgl">Tgl</th>
+                    <th class="col-aksi">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelRiwayat">
+                <!-- Data masuk sini -->
+            </tbody>
+            <!-- Baris Total Bawah -->
+            <tfoot id="tabelFooter">
+                <!-- Data Total masuk sini -->
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    let dataTransaksi = JSON.parse(localStorage.getItem('dataAkuntansiTani')) || [];
+    let jenisTransaksiSaatIni = ''; 
+
+    // Elemen Input
+    const ketInput = document.getElementById('keterangan');
+    const qtyInput = document.getElementById('kuantitas');
+    const uangInput = document.getElementById('jumlahUangTampil');
+    const unitGroup = document.getElementById('unitGroup');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    // --- SISTEM KUNCI BERURUTAN (STEP-BY-STEP) ---
+    function periksaAksesForm() {
+        // Jika sedang edit, buka semua kuncinya
+        if(document.getElementById('editId').value) {
+            qtyInput.disabled = false; uangInput.disabled = false;
+            unitGroup.classList.remove('disabled-area'); btnSubmit.disabled = false;
+            return;
+        }
+
+        let teks = ketInput.value.trim().toUpperCase();
+        let validB = teks.startsWith('B ') || teks === 'B';
+        let validH = teks.startsWith('H ') || teks === 'H';
+        let ketValid = validB || validH;
+
+        // Buka Kuantitas jika keterangan B/H valid
+        qtyInput.disabled = !ketValid;
+        
+        // Buka Satuan jika Kuantitas terisi
+        let qtyVal = parseFloat(qtyInput.value);
+        let qtyValid = ketValid && !isNaN(qtyVal) && qtyVal > 0;
+        if(qtyValid) unitGroup.classList.remove('disabled-area');
+        else unitGroup.classList.add('disabled-area');
+
+        // Buka Uang
+        uangInput.disabled = !qtyValid;
+
+        // Buka Tombol Simpan
+        let uangVal = parseInt(document.getElementById('jumlahUangAsli').value);
+        let uangValid = qtyValid && !isNaN(uangVal) && uangVal > 0;
+        btnSubmit.disabled = !uangValid;
+    }
+
+    ketInput.addEventListener('input', periksaAksesForm);
+    qtyInput.addEventListener('input', periksaAksesForm);
+    uangInput.addEventListener('input', periksaAksesForm);
+
+    // --- SATUAN KLIK ---
+    const unitBtns = document.querySelectorAll('.unit-btn');
+    const satuanInput = document.getElementById('satuanPilihan');
+
+    unitBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            unitBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            satuanInput.value = this.getAttribute('data-unit');
+            periksaAksesForm(); // Cek lagi
+        });
+    });
+
+    // --- DETEKSI KETIK B ATAU H ---
+    ketInput.addEventListener('input', function(e) {
+        let teks = e.target.value.trim().toUpperCase();
+        let indikator = document.getElementById('jenisIndikator');
+
+        if (teks.startsWith('B ') || teks === 'B') {
+            jenisTransaksiSaatIni = 'pengeluaran';
+            indikator.innerHTML = '🔴 <b>PENGELUARAN (BELI)</b>';
+            indikator.style.color = 'var(--accent-red)';
+            indikator.style.borderColor = 'var(--accent-red)';
+        } else if (teks.startsWith('H ') || teks === 'H') {
+            jenisTransaksiSaatIni = 'pemasukan';
+            indikator.innerHTML = '🟢 <b>PEMASUKAN (HASIL)</b>';
+            indikator.style.color = 'var(--accent-green)';
+            indikator.style.borderColor = 'var(--accent-green)';
+        } else {
+            jenisTransaksiSaatIni = '';
+            indikator.innerHTML = '⚠️ Ketik <b>B</b> atau <b>H</b> di awal!';
+            indikator.style.color = 'var(--text-muted)';
+            indikator.style.borderColor = 'var(--border-color)';
+        }
+    });
+
+    // --- AUTO TITIK UANG ---
+    const inputUangAsli = document.getElementById('jumlahUangAsli');
+    uangInput.addEventListener('input', function(e) {
+        let angka = this.value.replace(/[^0-9]/g, '');
+        if (angka !== '') {
+            inputUangAsli.value = angka;
+            this.value = parseInt(angka, 10).toLocaleString('id-ID');
+        } else {
+            inputUangAsli.value = '';
+            this.value = '';
+        }
+    });
+
+    const formatUang = (angka) => new Intl.NumberFormat('id-ID').format(angka);
+    
+    // Format Tanggal Pendek (12/06)
+    const formatTanggalPendek = (tglString) => {
+        let d = new Date(tglString);
+        let tgl = d.getDate().toString().padStart(2, '0');
+        let bln = (d.getMonth() + 1).toString().padStart(2, '0');
+        return `${tgl}/${bln}`;
+    };
+
+    // Fungsi Huruf Besar Tiap Kata
+    function keHurufKapital(str) {
+        return str.toLowerCase().split(' ').map(kata => kata.charAt(0).toUpperCase() + kata.slice(1)).join(' ');
+    }
+
+    document.getElementById('tanggal').valueAsDate = new Date();
+
+    // --- TAMPILKAN KE TABEL & DASHBOARD ---
+    function perbaruiTampilan() {
+        let pemasukan = 0; let pengeluaran = 0;
+        const tabelBody = document.getElementById('tabelRiwayat');
+        tabelBody.innerHTML = '';
+
+        dataTransaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        dataTransaksi.forEach(t => {
+            if (t.jenis === 'pemasukan') pemasukan += t.jumlahUang;
+            else pengeluaran += t.jumlahUang;
+
+            let ketBersih = t.keterangan;
+            if (ketBersih.toUpperCase().startsWith('B ')) ketBersih = ketBersih.substring(2);
+            if (ketBersih.toUpperCase().startsWith('H ')) ketBersih = ketBersih.substring(2);
+
+            const warnaUang = t.jenis === 'pemasukan' ? 'var(--accent-green)' : 'var(--accent-red)';
+            const simbolUang = t.jenis === 'pemasukan' ? '+' : '-';
+
+            const baris = document.createElement('tr');
+            baris.innerHTML = `
+                <td class="col-ket">${ketBersih}</td>
+                <td class="col-jml">${t.kuantitas}</td>
+                <td class="col-sat">${t.satuan}</td>
+                <td class="col-uang" style="color: ${warnaUang};">
+                    ${simbolUang}${formatUang(t.jumlahUang)}
+                </td>
+                <td class="col-tgl">${formatTanggalPendek(t.tanggal)}</td>
+                <td class="col-aksi">
+                    <div class="action-flex">
+                        <button class="action-btn btn-edit" onclick="editData(${t.id})">✏️</button>
+                        <button class="action-btn btn-delete" onclick="hapusData(${t.id})">🗑️</button>
+                    </div>
+                </td>
+            `;
+            tabelBody.appendChild(baris);
+        });
+
+        // 1. UPDATE DASHBOARD ATAS
+        let saldoBersih = pemasukan - pengeluaran;
+        document.getElementById('dashPemasukan').innerText = 'Rp ' + formatUang(pemasukan);
+        document.getElementById('dashPengeluaran').innerText = 'Rp ' + formatUang(pengeluaran);
+        
+        let elemenSaldo = document.getElementById('dashSaldo');
+        let elemenPersen = document.getElementById('dashPersen');
+        elemenSaldo.innerText = 'Rp ' + formatUang(saldoBersih);
+
+        // Menghitung Persentase Keuntungan
+        let persentase = 0;
+        if (pengeluaran > 0) persentase = (saldoBersih / pengeluaran) * 100;
+        else if (pengeluaran === 0 && pemasukan > 0) persentase = 100; // Untung mutlak tanpa modal
+
+        // Logika Warna Saldo & Persen
+        if (saldoBersih > 0) {
+            elemenSaldo.style.color = 'var(--accent-green)';
+            elemenPersen.innerText = `▲ +${persentase.toFixed(1)}% (Untung)`;
+            elemenPersen.style.color = 'var(--accent-green)';
+        } else if (saldoBersih < 0) {
+            elemenSaldo.style.color = 'var(--accent-red)';
+            elemenPersen.innerText = `▼ ${persentase.toFixed(1)}% (Rugi)`;
+            elemenPersen.style.color = 'var(--accent-red)';
+        } else {
+            elemenSaldo.style.color = 'var(--text-main)';
+            elemenPersen.innerText = `- 0%`;
+            elemenPersen.style.color = 'var(--text-muted)';
+        }
+
+        // 2. UPDATE FOOTER TABEL BAWAH
+        const tabelFooter = document.getElementById('tabelFooter');
+        tabelFooter.innerHTML = `
+            <tr style="background-color: #0f172a; border-top: 2px solid var(--border-color);">
+                <td colspan="3" style="text-align: right; font-weight: bold; font-size:10px; color:var(--text-muted);">TOTAL KELUAR:</td>
+                <td colspan="3" style="color: var(--accent-red); font-weight: bold;">- Rp ${formatUang(pengeluaran)}</td>
+            </tr>
+            <tr style="background-color: #0f172a;">
+                <td colspan="3" style="text-align: right; font-weight: bold; font-size:10px; color:var(--text-muted);">TOTAL MASUK:</td>
+                <td colspan="3" style="color: var(--accent-green); font-weight: bold;">+ Rp ${formatUang(pemasukan)}</td>
+            </tr>
+            <tr style="background-color: var(--surface-30); border-top: 2px dashed var(--border-color);">
+                <td colspan="3" style="text-align: right; font-weight: bold; font-size:11px;">SALDO BERSIH:</td>
+                <td colspan="3" style="font-weight: bold; font-size:12px; color: ${saldoBersih > 0 ? 'var(--accent-green)' : (saldoBersih < 0 ? 'var(--accent-red)' : 'var(--text-main)')};">
+                    Rp ${formatUang(saldoBersih)}
+                </td>
+            </tr>
+        `;
+
+        localStorage.setItem('dataAkuntansiTani', JSON.stringify(dataTransaksi));
+    }
+
+    // --- SIMPAN ---
+    document.getElementById('transaksiForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('editId').value;
+        const tanggal = document.getElementById('tanggal').value;
+        const kuantitas = document.getElementById('kuantitas').value;
+        const satuan = document.getElementById('satuanPilihan').value;
+        const jumlahUang = parseInt(document.getElementById('jumlahUangAsli').value, 10);
+        
+        // Memaksa huruf awal kapital untuk disimpan
+        let keteranganMentah = document.getElementById('keterangan').value.trim();
+        const keterangan = keHurufKapital(keteranganMentah);
+
+        if (id) {
+            const index = dataTransaksi.findIndex(x => x.id == id);
+            dataTransaksi[index] = { id: parseInt(id), tanggal, kuantitas, satuan, jenis: jenisTransaksiSaatIni, keterangan, jumlahUang };
+            batalEdit();
+        } else {
+            dataTransaksi.push({ id: Date.now(), tanggal, kuantitas, satuan, jenis: jenisTransaksiSaatIni, keterangan, jumlahUang });
+        }
+
+        this.reset();
+        document.getElementById('jumlahUangAsli').value = ''; 
+        document.getElementById('jenisIndikator').innerHTML = 'Tunggu ketikan...';
+        document.getElementById('jenisIndikator').style.color = 'var(--text-muted)';
+        document.getElementById('jenisIndikator').style.borderColor = 'var(--border-color)';
+        
+        unitBtns.forEach(b => b.classList.remove('active'));
+        unitBtns[0].classList.add('active'); // Kembali ke Pcs
+        document.getElementById('satuanPilihan').value = 'Pcs';
+
+        document.getElementById('tanggal').valueAsDate = new Date();
+        periksaAksesForm(); // Kunci form kembali
+        perbaruiTampilan();
+    });
+
+    // --- EDIT & HAPUS ---
+    function editData(id) {
+        const t = dataTransaksi.find(x => x.id === id);
+        document.getElementById('editId').value = t.id;
+        document.getElementById('tanggal').value = t.tanggal;
+        document.getElementById('kuantitas').value = t.kuantitas;
+        document.getElementById('keterangan').value = t.keterangan;
+        
+        document.getElementById('satuanPilihan').value = t.satuan;
+        unitBtns.forEach(b => {
+            if(b.getAttribute('data-unit') === t.satuan) b.classList.add('active');
+            else b.classList.remove('active');
+        });
+
+        document.getElementById('keterangan').dispatchEvent(new Event('input'));
+        document.getElementById('jumlahUangAsli').value = t.jumlahUang;
+        document.getElementById('jumlahUangTampil').value = t.jumlahUang.toLocaleString('id-ID');
+
+        btnSubmit.innerText = 'Simpan Revisi';
+        btnSubmit.style.backgroundColor = '#d97706';
+        document.getElementById('btnCancel').style.display = 'block';
+        periksaAksesForm(); // Buka gembok karena mode edit
+        window.scrollTo(0, 0);
+    }
+
+    function batalEdit() {
+        document.getElementById('transaksiForm').reset();
+        document.getElementById('editId').value = '';
+        document.getElementById('jumlahUangAsli').value = '';
+        btnSubmit.innerText = 'Simpan Data';
+        btnSubmit.style.backgroundColor = 'var(--accent-blue)';
+        document.getElementById('btnCancel').style.display = 'none';
+        
+        document.getElementById('jenisIndikator').innerHTML = 'Tunggu ketikan...';
+        document.getElementById('jenisIndikator').style.color = 'var(--text-muted)';
+        document.getElementById('tanggal').valueAsDate = new Date();
+        periksaAksesForm(); // Kunci ulang form
+    }
+
+    function hapusData(id) {
+        if (confirm('Yakin hapus data ini?')) {
+            dataTransaksi = dataTransaksi.filter(x => x.id !== id);
+            perbaruiTampilan();
+        }
+    }
+
+    perbaruiTampilan();
+    periksaAksesForm(); // Panggil saat awal web dibuka
+</script>
+
+</body>
+</html>
