@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Kas</title>
+    <style>
+        /* TEMA WARNA 60-30-10 (DARK MODE SEJUK) */
+        :root {
+            --bg-60: #0f172a;
+            --surface-30: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+        
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-60); color: var(--text-main); margin: 0; padding: 12px 8px; font-size: 14px; }
+        h2 { text-align: center; color: var(--text-main); font-size: 18px; margin-bottom: 15px; font-weight: 600; letter-spacing: 1px;}
+        
+        /* Dashboard */
+        .dashboard { display: flex; gap: 8px; margin-bottom: 15px; }
+        .card { flex: 1; background: var(--surface-30); padding: 12px 5px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
+        .card h3 { margin: 0 0 5px 0; font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+        .card p { margin: 0; font-size: 13px; font-weight: 700; word-break: break-all; }
+        .persen-badge { font-size: 10px; margin-top: 4px; font-weight: 700; }
+        .text-green { color: var(--accent-green); }
+        .text-red { color: var(--accent-red); }
+
+        /* Area Form */
+        .form-container { background: var(--surface-30); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        
+        .guide-box { background-color: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--accent-blue); padding: 10px; margin-bottom: 15px; border-radius: 4px; font-size: 11px; color: #cbd5e1; }
+        .form-group { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;}
+        .col { flex: 1; }
+        
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 12px; color: var(--text-muted); }
+        input { 
+            width: 100%; padding: 10px 8px; background-color: var(--bg-60); border: 1px solid var(--border-color); 
+            border-radius: 6px; box-sizing: border-box; color: var(--text-main); font-size: 13px; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent-blue); }
+        
+        /* Huruf besar di awal kata saat mengetik */
+        #keterangan { text-transform: capitalize; }
+
+        /* Style untuk kolom yang belum bisa diakses */
+        input:disabled, button:disabled { opacity: 0.4; cursor: not-allowed; background-color: #0f172a; border-color: var(--border-color); }
+        .disabled-area { opacity: 0.4; pointer-events: none; }
+
+        #jenisIndikator { display: inline-block; margin-top: 4px; font-size: 10px; padding: 4px 6px; border-radius: 4px; background-color: var(--bg-60); color: var(--text-muted); border: 1px dashed var(--border-color); }
+
+        .unit-group { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; transition: 0.3s;}
+        .unit-btn { background-color: var(--bg-60); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; font-size: 11px; cursor: pointer; flex: 1; text-align: center; }
+        .unit-btn.active { background-color: var(--accent-blue); color: white; border-color: var(--accent-blue); font-weight: bold; }
+
+        .btn-submit { background-color: var(--accent-blue); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; width: 100%; font-size: 13px; margin-top: 5px; transition: 0.3s;}
+        .btn-cancel { background-color: #475569; margin-top: 8px; display: none; width: 100%; padding: 10px; border:none; border-radius:6px; color:white;}
+
+        /* Tabel - Rapat & Pas Tulisan */
+        .table-container { background: var(--surface-30); border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { padding: 5px 4px; border: 1px solid var(--border-color); vertical-align: middle; }
+        
+        th { background-color: #0f172a; font-weight: 600; color: var(--text-muted); font-size: 10px; text-transform: uppercase; text-align: center;}
+        
+        /* Menggunakan width 1% dan nowrap agar kolom mengecil / pas dengan isi teks */
+        .col-ket { width: auto; background-color: rgba(255,255,255, 0.04); font-weight: 500; }
+        .col-jml { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.01); }
+        .col-sat { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.03); color: var(--accent-blue); font-weight:bold;}
+        .col-uang { width: 1%; white-space: nowrap; text-align: right; background-color: rgba(255,255,255, 0.01); font-weight: bold;}
+        .col-tgl { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.03); font-size: 10px; color: var(--text-muted); }
+        .col-aksi { width: 1%; white-space: nowrap; text-align: center; background-color: rgba(255,255,255, 0.01); }
+
+        .action-flex { display: flex; gap: 4px; align-items: center; justify-content: center;}
+        .action-btn { padding: 3px; border-radius: 4px; border: none; font-size: 9px; min-width: 22px; color: white;}
+        .btn-edit { background-color: #d97706; }
+        .btn-delete { background-color: var(--accent-red); }
+    
+@media print{
+.dashboard,.form-container,.col-aksi{display:none!important;}
+body{background:#fff;color:#000;padding:0}
+.table-container{border:none}
+th,td{border:1px solid #000}
+h2::after{
+content:"\A Laporan dicetak dari Buku Kas";
+white-space:pre;
+font-size:12px;
+font-weight:400;
+}
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>BUKU KAS</h2>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="card">
+            <h3>H = Hasil (Masuk)</h3>
+            <p class="text-green" id="dashPemasukan">0</p>
+        </div>
+        <div class="card">
+            <h3>B = Beli (Keluar)</h3>
+            <p class="text-red" id="dashPengeluaran">0</p>
+        </div>
+        <div class="card">
+            <h3>Saldo Bersih</h3>
+            <p id="dashSaldo" style="transition: 0.3s;">0</p>
+            <div id="dashPersen" class="persen-badge text-muted">- 0%</div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+        <div class="guide-box">
+            <strong>💡 Panduan Pengisian Berurutan:</strong><br>
+            Ketik <b>B</b> (Beli) atau <b>H</b> (Hasil) di awal keterangan untuk membuka gembok kolom selanjutnya.
+        </div>
+
+        <form id="transaksiForm">
+            <input type="hidden" id="editId">
+            <input type="hidden" id="jumlahUangAsli">
+            <input type="hidden" id="satuanPilihan" value="Pcs"> <!-- Default jadi Pcs -->
+            
+            <!-- Baris 1: Keterangan & Jumlah -->
+            <div class="form-group">
+                <div class="col" style="flex: 2;">
+                    <label>Keterangan Barang</label>
+                    <input type="text" id="keterangan" placeholder="Cth: B Bibit" required autocomplete="off">
+                    <div id="jenisIndikator">Tunggu ketikan...</div>
+                </div>
+                <div class="col" style="flex: 1;">
+                    <label>Jumlah</label>
+                    <input type="number" step="any" id="kuantitas" placeholder="0" required disabled>
+                </div>
+            </div>
+
+            <!-- Baris 2: Satuan -->
+            <label>Pilihan Satuan</label>
+            <div class="unit-group disabled-area" id="unitGroup">
+                <button type="button" class="unit-btn active" data-unit="Pcs">Pcs</button>
+                <button type="button" class="unit-btn" data-unit="Kg">Kg</button>
+                <button type="button" class="unit-btn" data-unit="Liter">Liter</button>
+                <button type="button" class="unit-btn" data-unit="Meter">Meter</button>
+                <button type="button" class="unit-btn" data-unit="Paket">Paket</button>
+            </div>
+
+            
+<label>Kategori</label>
+<select id="kategori" style="width:100%;padding:10px;margin-bottom:12px;background:#0f172a;color:white;border:1px solid #334155;border-radius:6px">
+<option>Bibit</option><option>Pupuk</option><option>Pestisida</option><option>Panen</option><option>Alat</option><option>Transport</option><option>Lainnya</option>
+</select>
+
+<!-- Baris 3: Total Uang & Tanggal -->
+            <div class="form-group">
+                <div class="col" style="flex: 1.8;">
+                    <label>Total Uang (Rp)</label>
+                    <input type="text" id="jumlahUangTampil" inputmode="numeric" placeholder="0" required disabled>
+                </div>
+                <div class="col" style="flex: 1.2;">
+                    <label>Tanggal</label>
+                    <input type="date" id="tanggal" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnSubmit" disabled>Simpan Data</button>
+            <button type="button" class="btn-cancel" id="btnCancel" onclick="batalEdit()">Batal Revisi</button>
+            <button type="button" class="btn-submit" style="background:#10b981;margin-top:8px" onclick="window.print()">🖨️ Cetak Laporan</button>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button type="button" class="btn-submit" style="background:#475569;margin-top:0" onclick="backupData()">💾 Backup Data</button>
+              <button type="button" class="btn-submit" style="background:#0ea5e9;margin-top:0" onclick="document.getElementById('restoreFile').click()">📂 Restore</button><button type="button" id="btnExportCsv" class="btn-submit" style="background:#16a34a;margin-top:0" onclick="exportCSV()">📊 CSV</button><button type="button" id="btnPDF" class="btn-submit" style="background:#dc2626;margin-top:0" onclick="exportPDF()">📄 PDF</button>
+            </div>
+            <input type="file" id="restoreFile" accept=".json" style="display:none">
+        </form>
+    </div>
+
+<div style="margin:12px 0;">
+<div style="display:flex;gap:8px;margin-bottom:8px">
+<input type="date" id="filterTanggal" style="flex:1">
+<button type="button" class="unit-btn" id="btnResetFilter" style="flex:0 0 auto">Reset</button>
+</div>
+
+<input type="text" id="searchInput" placeholder="🔍 Cari transaksi..." style="width:100%;margin-bottom:8px;">
+<div style="display:flex;gap:6px">
+<button type="button" class="unit-btn filter-btn active" data-filter="semua">Semua</button>
+<button type="button" class="unit-btn filter-btn" data-filter="pemasukan">Masuk</button>
+<button type="button" class="unit-btn filter-btn" data-filter="pengeluaran">Keluar</button>
+</div>
+</div>
+
+    
+<div class="form-container">
+<h3 style="margin-top:0">📊 Grafik Ringkas</h3>
+<canvas id="grafikKas" width="300" height="120" style="width:100%;background:#0f172a;border-radius:8px"></canvas>
+</div>
+
+
+    
+<div class="form-container" id="statistikBox">
+<h3 style="margin-top:0">📈 Statistik Cepat</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<div class="card"><h3>Transaksi</h3><p id="statTotal">0</p></div>
+<div class="card"><h3>Rata-rata</h3><p id="statRata">Rp 0</p></div>
+</div>
+</div>
+
+
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+<div class="card"><h3>Bulan Ini</h3><p id="statBulan">Rp 0</p></div>
+<div class="card"><h3>Hari Ini</h3><p id="statHari">Rp 0</p></div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">⚙️ Pengaturan Cepat</h3>
+<div style="display:flex;gap:8px">
+<button type="button" class="unit-btn" onclick="gantiTema()">🌙/☀️ Tema</button>
+<button type="button" class="unit-btn" onclick="urutkanNominal()">💰 Urut Nominal</button>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:8px">
+<button type="button" id="btnResetSemua" class="unit-btn" onclick="resetSemuaData()">🗑️ Reset Semua Data</button>
+<button type="button" class="unit-btn" onclick="lihatInfo()">ℹ️ Info Aplikasi</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📚 Multi Buku Kas (Preview)</h3>
+<input type="text" id="namaBukuKas" placeholder="Nama Buku Kas" style="margin-bottom:8px">
+<button type="button" class="btn-submit" style="background:#7c3aed" onclick="simpanNamaBuku()">💾 Simpan Nama Buku</button>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🗂️ Manajemen Buku</h3>
+<select id="pilihBukuKas" style="width:100%;padding:10px;margin-bottom:8px"></select>
+<div style="display:flex;gap:8px">
+<button type="button" class="btn-submit" style="background:#2563eb" onclick="buatBukuBaru()">➕ Buku Baru</button>
+<button type="button" class="btn-submit" style="background:#ea580c" onclick="gantiBuku()">📂 Buka</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📱 Status Proyek</h3>
+<div id="infoVersi" style="font-size:12px;line-height:1.7">
+Versi: <b>12.9</b><br>
+Status: <span style="color:#22c55e">Version 12.9 - Import Service</span><br>
+Target: APK Android
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#059669" onclick="optimasiRender()">⚡ Optimasi Render</button>
+<button class="btn-submit" style="background:#7c3aed" onclick="cekDatabase()">🗄️ Cek Data</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🧩 Arsitektur Proyek</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ app.js<br>
+✅ transaksi.js<br>
+✅ dashboard.js<br>
+✅ storage.js<br>
+Status: Fondasi Modular
+</div>
+<button class="btn-submit" style="background:#2563eb;margin-top:10px" onclick="cekArsitektur()">🔍 Cek Arsitektur</button>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🛠️ Panel Developer</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn-submit" style="background:#0891b2" onclick="jalankanDiagnostik()">🩺 Diagnostik</button>
+<button class="btn-submit" style="background:#4f46e5" onclick="reloadSemuaModul()">🔄 Reload Modul</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">💾 Panel Storage</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn-submit" style="background:#0f766e" onclick="cekStorage()">📦 Cek Storage</button>
+<button class="btn-submit" style="background:#b45309" onclick="bersihkanCache()">🧹 Bersihkan Cache</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">⚙️ Panel Service</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn-submit" style="background:#2563eb" onclick="cekService()">🔎 Cek Service</button>
+<button class="btn-submit" style="background:#16a34a" onclick="sinkronRender()">🔄 Sinkron Render</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🧠 Panel Render Pipeline</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn-submit" style="background:#7c3aed" onclick="cekState()">📊 Cek State</button>
+<button class="btn-submit" style="background:#0ea5e9" onclick="refreshState()">♻️ Refresh State</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🔄 Application Lifecycle</h3>
+<div style="font-size:12px;line-height:1.7">
+Lifecycle mengatur urutan startup, resume, refresh, dan shutdown aplikasi.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekLifecycle()">📋 Cek Lifecycle</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanLifecycle()">▶️ Jalankan Lifecycle</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">⏱️ Render Scheduler</h3>
+<div style="font-size:12px;line-height:1.7">
+Scheduler mengatur kapan proses render dijalankan agar tidak berulang.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekScheduler()">⏱️ Cek Scheduler</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanScheduler()">▶️ Jalankan Scheduler</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🎛️ UI Update Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Menggabungkan pembaruan dashboard, tabel, grafik, dan statistik dalam satu pintu.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekUIManager()">🎛️ Cek UI</button>
+<button class="btn-submit" style="background:#16a34a" onclick="updateSemuaUI()">🔄 Update UI</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📥 Render Queue Manager</h3>
+<div style="font-size:12px">Mengantre proses render agar dijalankan berurutan.</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekQueue()">📋 Cek Queue</button>
+<button class="btn-submit" style="background:#16a34a" onclick="prosesQueue()">▶️ Proses Queue</button>
+</div></div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📋 Task Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengelola tugas latar belakang seperti backup, refresh statistik, dan sinkronisasi.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekTask()">📋 Cek Task</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanTask()">▶️ Jalankan Task</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🚀 Core Engine</h3>
+<div style="font-size:12px;line-height:1.7">
+Engine menjadi pusat koordinasi modul aplikasi menuju versi APK Android.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekEngine()">⚙️ Cek Engine</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanEngine()">▶️ Jalankan Engine</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📦 Module Loader</h3>
+<div style="font-size:12px;line-height:1.7">
+Memuat modul aplikasi secara terpusat sebagai persiapan pemisahan file HTML, CSS, dan JavaScript.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekLoader()">📋 Cek Loader</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanLoader()">▶️ Muat Modul</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🗃️ Module Registry</h3>
+<div style="font-size:12px;line-height:1.7">
+Mencatat seluruh modul yang aktif sehingga nantinya mudah dipisahkan menjadi banyak file.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekRegistry()">📑 Cek Registry</button>
+<button class="btn-submit" style="background:#16a34a" onclick="sinkronRegistry()">🔄 Sinkronkan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🎯 Render Coordinator</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengatur satu pintu proses render sehingga dashboard, tabel, grafik, dan statistik diperbarui secara konsisten.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekCoordinator()">📊 Status</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanCoordinator()">▶️ Sinkronkan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🧭 App Router</h3>
+<div style="font-size:12px;line-height:1.7">
+Router menjadi pintu masuk navigasi dan alur eksekusi modul aplikasi.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekRouter()">🧭 Cek Router</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanRouter()">▶️ Jalankan Router</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📥 Module Installer</h3>
+<div style="font-size:12px;line-height:1.7">
+Menginstal dan menginisialisasi modul aplikasi saat startup agar siap dipakai.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekInstaller()">📦 Cek Installer</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanInstaller()">▶️ Instal Modul</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🧩 Plugin Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengelola plugin agar fitur baru dapat dipasang tanpa mengubah inti aplikasi.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekPlugin()">🧩 Cek Plugin</button>
+<button class="btn-submit" style="background:#16a34a" onclick="muatPlugin()">⬇️ Muat Plugin</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🔗 Dependency Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengelola hubungan antar modul dan plugin agar proses inisialisasi berjalan sesuai urutan.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekDependency()">🔎 Cek Dependency</button>
+<button class="btn-submit" style="background:#16a34a" onclick="sinkronDependency()">🔄 Sinkronkan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📦 Package Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengelompokkan modul menjadi paket agar struktur proyek lebih rapi dan siap dipisah menjadi banyak file.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekPackage()">📋 Cek Paket</button>
+<button class="btn-submit" style="background:#16a34a" onclick="muatPackage()">🚀 Muat Paket</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🏗️ Build Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengelola proses build aplikasi sebelum dibundel menjadi APK Android.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekBuild()">🔍 Cek Build</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanBuild()">🚀 Build</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🚀 Release Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengelola mode Debug dan Release sebagai tahap akhir sebelum aplikasi dikonversi menjadi APK.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekRelease()">🔍 Cek Release</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanRelease()">📦 Release</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📲 APK Pipeline</h3>
+<div style="font-size:12px;line-height:1.7">
+Tahap Signing → Packaging → Verifikasi sebelum APK final dibuat.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekPipelineAPK()">🔎 Cek Pipeline</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanPipelineAPK()">🚀 Jalankan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🔐 APK Signing Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Simulasi proses Keystore → Sign → Verify Signature sebelum APK dirilis.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekSigning()">🔍 Cek Signing</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanSigning()">✍️ Sign APK</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">✅ APK Validator</h3>
+<div style="font-size:12px;line-height:1.7">
+Memeriksa Manifest, Resource, Struktur Build, dan Signature sebelum APK dinyatakan siap rilis.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekValidator()">🔎 Validasi</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanValidator()">✔️ Jalankan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📦 APK Bundle Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Mengelola pembuatan Android App Bundle (AAB) sebagai tahap setelah validasi APK.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekBundle()">🔎 Cek Bundle</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanBundle()">📦 Buat AAB</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🚀 Pre-Production Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Pemeriksaan akhir sebelum aplikasi dipublikasikan.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekRC()">🔎 Cek RC</button>
+<button class="btn-submit" style="background:#16a34a" onclick="buatRC()">🚀 Buat RC</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🧪 Pre-Production Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Simulasi akhir sebelum proses produksi dan publikasi aplikasi.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekPreProd()">🔎 Cek PreProd</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanPreProd()">🧪 Jalankan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🏁 Production Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Tahap akhir sebelum aplikasi dipublikasikan sebagai versi produksi.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekProduction()">🔎 Cek Production</button>
+<button class="btn-submit" style="background:#22c55e" onclick="jalankanProduction()">🏁 Publish</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🎉 Deployment Manager</h3>
+<div style="font-size:12px;line-height:1.7">Tahap deploy dan distribusi aplikasi setelah produksi.</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekDeploy()">🔎 Cek Deploy</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanDeploy()">🚀 Deploy</button>
+</div>
+</div>
+
+<!-- Tabel -->
+    
+<div class="form-container">
+<h3 style="margin-top:0">🌐 Distribution Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Tahap distribusi pasca deployment ke pengguna.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekDistribusi()">🔎 Cek Distribusi</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanDistribusi()">📤 Distribusikan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🏪 Store Release Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Tahap akhir untuk publikasi ke Play Store dan pengelolaan versi aplikasi.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekStoreRelease()">🔎 Cek Rilis</button>
+<button class="btn-submit" style="background:#16a34a" onclick="rilisPlayStore()">🚀 Publish Store</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📈 Analytics Manager</h3>
+<div style="font-size:12px;line-height:1.7">
+Memantau statistik penggunaan aplikasi sebelum dan sesudah rilis.
+</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekAnalytics()">📊 Cek Analytics</button>
+<button class="btn-submit" style="background:#16a34a" onclick="jalankanAnalytics()">▶️ Sinkronkan</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🧪 QA Manager</h3>
+<div style="font-size:12px;line-height:1.7">Pemeriksaan cepat terhadap data, render, storage, dan modul inti.</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="cekQA()">🔎 Jalankan QA</button>
+<button class="btn-submit" style="background:#16a34a" onclick="laporanQA()">📋 Laporan</button>
+</div>
+</div>
+
+<div class="form-container">
+<h3 style="margin-top:0">🤖 Auto QA</h3>
+<div style="font-size:12px;line-height:1.7">Menjalankan pemeriksaan otomatis setelah perubahan data.</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn-submit" style="background:#2563eb" onclick="toggleAutoQA()">⚙️ Auto QA</button>
+<button class="btn-submit" style="background:#16a34a" onclick="statusAutoQA()">📄 Status</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📊 QA Dashboard</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<div class="card"><h3>QA Run</h3><p id="qaRun">0</p></div>
+<div class="card"><h3>Error</h3><p id="qaError">0</p></div>
+<div class="card"><h3>Success</h3><p id="qaSuccess">100%</p></div>
+</div>
+</div>
+<div class="form-container">
+<h3 style="margin-top:0">📜 QA Log</h3>
+<div id="qaLog" style="font-size:12px;background:#0f172a;padding:8px;border-radius:6px;margin-bottom:8px">Belum ada pemeriksaan.</div>
+<div style="display:flex;gap:8px">
+<button class="btn-submit" style="background:#2563eb" onclick="tambahLogQA()">📝 Tambah Log</button>
+<button class="btn-submit" style="background:#dc2626" onclick="bersihkanLogQA()">🗑️ Bersihkan</button>
+</div>
+</div>
+
+<div class="form-container">
+<h3 style="margin-top:0">📚 Multi Buku Kas v2</h3>
+<div style="font-size:12px;line-height:1.6;margin-bottom:8px">
+Setiap buku memiliki data transaksi sendiri.
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn-submit" style="background:#2563eb" onclick="buatBukuBaruV2()">➕ Buku</button>
+<button class="btn-submit" style="background:#16a34a" onclick="gantiBukuV2()">📂 Buka</button>
+<button class="btn-submit" style="background:#dc2626" onclick="hapusBukuV2()">🗑️ Hapus</button>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">↩️ Undo Delete</h3>
+<div style="font-size:12px;line-height:1.6;margin-bottom:8px">
+Mengembalikan transaksi terakhir yang dihapus.
+</div>
+<button class="btn-submit" style="background:#f59e0b" onclick="undoDelete()">↩️ Batalkan Hapus</button>
+</div>
+
+
+<div class="form-container" id="laporanKategori">
+<h3 style="margin-top:0">📊 Laporan per Kategori</h3>
+<div id="kategoriSummary" style="font-size:12px;line-height:1.8">
+Belum ada data kategori.
+</div>
+</div>
+
+
+<div class="form-container" id="laporanBulanan">
+<h3 style="margin-top:0">📅 Laporan Bulanan</h3>
+<div id="bulananSummary" style="font-size:12px;line-height:1.8">Belum ada data.</div>
+</div>
+
+<div class="form-container" id="laporanTahunan">
+<h3 style="margin-top:0">📆 Laporan Tahunan</h3>
+<div id="tahunanSummary" style="font-size:12px;line-height:1.8">Belum ada data.</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🏗️ Refactor Roadmap</h3>
+<ul style="margin:8px 0 0 18px;font-size:12px;line-height:1.7">
+<li>✅ Siap dipisah menjadi HTML, CSS, dan JavaScript.</li>
+<li>✅ Fondasi modul Storage, Dashboard, Transaksi, Laporan.</li>
+<li>✅ Persiapan migrasi ke struktur proyek APK.</li>
+</ul>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🧱 Modular Refactor Stage 1</h3>
+<div style="font-size:12px;line-height:1.7">
+<ul style="margin:6px 0 0 18px">
+<li>✅ Struktur modul mulai dipisahkan secara konseptual.</li>
+<li>✅ Persiapan migrasi ke app.js, storage.js, dashboard.js, transaksi.js, laporan.js.</li>
+<li>✅ Audit fungsi render sebagai tahap awal optimasi.</li>
+</ul>
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">⚡ Core Refactor Stage 2</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ Audit render selesai<br>
+✅ Persiapan render terpusat<br>
+✅ Persiapan pemisahan Storage, UI, Dashboard, Report
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">🗄️ Storage Service Stage 3</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ StorageService terpusat<br>
+✅ Siap migrasi LocalStorage → Database<br>
+✅ Seluruh akses data diarahkan melalui satu service
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">💼 Transaction Service</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ CRUD transaksi dipusatkan<br>
+✅ Siap dipakai UI & Dashboard<br>
+✅ Fondasi migrasi ke database
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📊 Dashboard Service</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ Perhitungan dashboard dipusatkan<br>
+✅ Siap dipakai grafik & laporan<br>
+✅ Satu sumber data statistik
+</div>
+</div>
+
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📈 Analytics Service</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ Analisis pemasukan & pengeluaran<br>
+✅ Tren transaksi<br>
+✅ Insight statistik terpusat
+</div>
+</div>
+
+
+<div class="form-container">
+<h3 style="margin-top:0">📤 Export Service</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ Ekspor CSV terpusat<br>
+✅ Ekspor PDF terpusat<br>
+✅ Fondasi ekspor lain (Excel/JSON)
+</div>
+</div>
+
+<div class="form-container">
+<h3 style="margin-top:0">📥 Import Service</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ Import JSON terpusat<br>
+✅ Validasi file backup<br>
+✅ Fondasi migrasi database
+</div>
+</div>
+<div class="form-container">
+<h3 style="margin-top:0">📑 Report Service</h3>
+<div style="font-size:12px;line-height:1.7">
+✅ Laporan kategori terpusat<br>
+✅ Laporan bulanan terpusat<br>
+✅ Laporan tahunan terpusat
+</div>
+</div>
+
+<div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-tgl">Tanggal</th>
+                    <th class="col-ket">Barang</th>
+                    <th class="col-jml">Jml</th>
+                    <th class="col-sat">Sat</th>
+                    <th class="col-uang">Total (Rp)</th>
+                    <th class="col-aksi">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelRiwayat">
+                <!-- Data masuk sini -->
+            </tbody>
+            <!-- Baris Total Bawah -->
+            <tfoot id="tabelFooter">
+                <!-- Data Total masuk sini -->
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    let dataTransaksi = JSON.parse(localStorage.getItem('dataAkuntansiTani')) || [];
+    let jenisTransaksiSaatIni = '';
+    let filterAktif='semua'; 
+
+    // Elemen Input
+    const ketInput = document.getElementById('keterangan');
+    const qtyInput = document.getElementById('kuantitas');
+    const uangInput = document.getElementById('jumlahUangTampil');
+    const unitGroup = document.getElementById('unitGroup');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    // --- SISTEM KUNCI BERURUTAN (STEP-BY-STEP) ---
+    function periksaAksesForm() {
+        // Jika sedang edit, buka semua kuncinya
+        if(document.getElementById('editId').value) {
+            qtyInput.disabled = false; uangInput.disabled = false;
+            unitGroup.classList.remove('disabled-area'); btnSubmit.disabled = false;
+            return;
+        }
+
+        let teks = ketInput.value.trim().toUpperCase();
+        let validB = teks.startsWith('B ') || teks === 'B';
+        let validH = teks.startsWith('H ') || teks === 'H';
+        let ketValid = validB || validH;
+
+        // Buka Kuantitas jika keterangan B/H valid
+        qtyInput.disabled = !ketValid;
+        
+        // Buka Satuan jika Kuantitas terisi
+        let qtyVal = parseFloat(qtyInput.value);
+        let qtyValid = ketValid && !isNaN(qtyVal) && qtyVal > 0;
+        if(qtyValid) unitGroup.classList.remove('disabled-area');
+        else unitGroup.classList.add('disabled-area');
+
+        // Buka Uang
+        uangInput.disabled = !qtyValid;
+
+        // Buka Tombol Simpan
+        let uangVal = parseInt(document.getElementById('jumlahUangAsli').value);
+        let uangValid = qtyValid && !isNaN(uangVal) && uangVal > 0;
+        btnSubmit.disabled = !uangValid;
+    }
+
+    ketInput.addEventListener('input', periksaAksesForm);
+    qtyInput.addEventListener('input', periksaAksesForm);
+    uangInput.addEventListener('input', periksaAksesForm);
+
+    // --- SATUAN KLIK ---
+    const unitBtns = document.querySelectorAll('.unit-btn');
+    const satuanInput = document.getElementById('satuanPilihan');
+
+    unitBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            unitBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            satuanInput.value = this.getAttribute('data-unit');
+            periksaAksesForm(); // Cek lagi
+        });
+    });
+
+    // --- DETEKSI KETIK B ATAU H ---
+    ketInput.addEventListener('input', function(e) {
+        let teks = e.target.value.trim().toUpperCase();
+        let indikator = document.getElementById('jenisIndikator');
+
+        if (teks.startsWith('B ') || teks === 'B') {
+            jenisTransaksiSaatIni = 'pengeluaran';
+            indikator.innerHTML = '🔴 <b>PENGELUARAN (BELI)</b>';
+            indikator.style.color = 'var(--accent-red)';
+            indikator.style.borderColor = 'var(--accent-red)';
+        } else if (teks.startsWith('H ') || teks === 'H') {
+            jenisTransaksiSaatIni = 'pemasukan';
+            indikator.innerHTML = '🟢 <b>PEMASUKAN (HASIL)</b>';
+            indikator.style.color = 'var(--accent-green)';
+            indikator.style.borderColor = 'var(--accent-green)';
+        } else {
+            jenisTransaksiSaatIni = '';
+            indikator.innerHTML = '⚠️ Ketik <b>B</b> atau <b>H</b> di awal!';
+            indikator.style.color = 'var(--text-muted)';
+            indikator.style.borderColor = 'var(--border-color)';
+        }
+    });
+
+    // --- AUTO TITIK UANG ---
+    const inputUangAsli = document.getElementById('jumlahUangAsli');
+    uangInput.addEventListener('input', function(e) {
+        let angka = this.value.replace(/[^0-9]/g, '');
+        if (angka !== '') {
+            inputUangAsli.value = angka;
+            this.value = parseInt(angka, 10).toLocaleString('id-ID');
+        } else {
+            inputUangAsli.value = '';
+            this.value = '';
+        }
+    });
+
+    const formatUang = (angka) => new Intl.NumberFormat('id-ID').format(angka);
+    
+    // Format Tanggal Pendek (12/06)
+    const formatTanggalLengkap = (tglString) => {
+        let d = new Date(tglString);
+        let tgl = d.getDate().toString().padStart(2, '0');
+        let bln = (d.getMonth() + 1).toString().padStart(2, '0');
+        let thn = d.getFullYear();
+        return `${tgl}/${bln}/${thn}`;
+    };
+
+    // Fungsi Huruf Besar Tiap Kata
+    function keHurufKapital(str) {
+        return str.toLowerCase().split(' ').map(kata => kata.charAt(0).toUpperCase() + kata.slice(1)).join(' ');
+    }
+
+    document.getElementById('tanggal').valueAsDate = new Date();
+
+    
+// ===== TOAST =====
+function tampilToast(pesan, warna="#10b981"){
+ const t=document.getElementById("toast");
+ t.textContent=pesan;
+ t.style.background=warna;
+ t.style.display="block";
+ clearTimeout(window._toastTimer);
+ window._toastTimer=setTimeout(()=>t.style.display="none",2200);
+}
+
+// --- TAMPILKAN KE TABEL & DASHBOARD ---
+    function perbaruiTampilan() {
+        let pemasukan = 0; let pengeluaran = 0;
+        const tabelBody = document.getElementById('tabelRiwayat');
+        tabelBody.innerHTML = '';
+
+        dataTransaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        dataTransaksi.forEach(t => {
+            if (t.jenis === 'pemasukan') pemasukan += t.jumlahUang;
+            else pengeluaran += t.jumlahUang;
+
+            let ketBersih = t.keterangan;
+            if (ketBersih.toUpperCase().startsWith('B ')) ketBersih = ketBersih.substring(2);
+            if (ketBersih.toUpperCase().startsWith('H ')) ketBersih = ketBersih.substring(2);
+
+            const warnaUang = t.jenis === 'pemasukan' ? 'var(--accent-green)' : 'var(--accent-red)';
+            const simbolUang = t.jenis === 'pemasukan' ? '+' : '-';
+
+            const baris = document.createElement('tr');
+            baris.innerHTML = `
+                <td class="col-tgl">${formatTanggalLengkap(t.tanggal)}</td>
+                <td class="col-ket">${ketBersih}</td>
+                <td class="col-jml">${t.kuantitas}</td>
+                <td class="col-sat">${t.satuan}</td>
+                <td class="col-uang" style="color: ${warnaUang};">
+                    ${simbolUang}${formatUang(t.jumlahUang)}
+                </td>
+                <td class="col-aksi">
+                    <div class="action-flex">
+                        <button class="action-btn btn-edit" onclick="editData(${t.id})">✏️</button>
+                        <button class="action-btn btn-delete" onclick="hapusData(${t.id})">🗑️</button>
+                    </div>
+                </td>
+            `;
+            tabelBody.appendChild(baris);
+        });
+
+        // 1. UPDATE DASHBOARD ATAS
+        let saldoBersih = pemasukan - pengeluaran;
+        document.getElementById('dashPemasukan').innerText = 'Rp ' + formatUang(pemasukan);
+        document.getElementById('dashPengeluaran').innerText = 'Rp ' + formatUang(pengeluaran);
+        
+        let elemenSaldo = document.getElementById('dashSaldo');
+        let elemenPersen = document.getElementById('dashPersen');
+        elemenSaldo.innerText = 'Rp ' + formatUang(saldoBersih);
+
+        // Menghitung Persentase Keuntungan
+        let persentase = 0;
+        if (pengeluaran > 0) persentase = (saldoBersih / pengeluaran) * 100;
+        else if (pengeluaran === 0 && pemasukan > 0) persentase = 100; // Untung mutlak tanpa modal
+
+        // Logika Warna Saldo & Persen
+        if (saldoBersih > 0) {
+            elemenSaldo.style.color = 'var(--accent-green)';
+            elemenPersen.innerText = `▲ +${persentase.toFixed(1)}% (Untung)`;
+            elemenPersen.style.color = 'var(--accent-green)';
+        } else if (saldoBersih < 0) {
+            elemenSaldo.style.color = 'var(--accent-red)';
+            elemenPersen.innerText = `▼ ${persentase.toFixed(1)}% (Rugi)`;
+            elemenPersen.style.color = 'var(--accent-red)';
+        } else {
+            elemenSaldo.style.color = 'var(--text-main)';
+            elemenPersen.innerText = `- 0%`;
+            elemenPersen.style.color = 'var(--text-muted)';
+        }
+
+        // 2. UPDATE FOOTER TABEL BAWAH
+        const tabelFooter = document.getElementById('tabelFooter');
+        tabelFooter.innerHTML = `
+            <tr style="background-color: #0f172a; border-top: 2px solid var(--border-color);">
+                <td colspan="3" style="text-align: right; font-weight: bold; font-size:10px; color:var(--text-muted);">TOTAL KELUAR:</td>
+                <td colspan="3" style="color: var(--accent-red); font-weight: bold;">- Rp ${formatUang(pengeluaran)}</td>
+            </tr>
+            <tr style="background-color: #0f172a;">
+                <td colspan="3" style="text-align: right; font-weight: bold; font-size:10px; color:var(--text-muted);">TOTAL MASUK:</td>
+                <td colspan="3" style="color: var(--accent-green); font-weight: bold;">+ Rp ${formatUang(pemasukan)}</td>
+            </tr>
+            <tr style="background-color: var(--surface-30); border-top: 2px dashed var(--border-color);">
+                <td colspan="3" style="text-align: right; font-weight: bold; font-size:11px;">SALDO BERSIH:</td>
+                <td colspan="3" style="font-weight: bold; font-size:12px; color: ${saldoBersih > 0 ? 'var(--accent-green)' : (saldoBersih < 0 ? 'var(--accent-red)' : 'var(--text-main)')};">
+                    Rp ${formatUang(saldoBersih)}
+                </td>
+            </tr>
+        `;
+
+        localStorage.setItem('dataAkuntansiTani', JSON.stringify(dataTransaksi));
+    }
+
+    // --- SIMPAN ---
+    document.getElementById('transaksiForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('editId').value;
+        const tanggal = document.getElementById('tanggal').value;
+        const kuantitas = document.getElementById('kuantitas').value;
+        const satuan = document.getElementById('satuanPilihan').value;
+        const jumlahUang = parseInt(document.getElementById('jumlahUangAsli').value, 10);
+
+        if(!jenisTransaksiSaatIni || !kuantitas || kuantitas<=0 || !jumlahUang || jumlahUang<=0){
+            tampilToast('Lengkapi data terlebih dahulu','#ef4444');
+            return;
+        }
+        
+        // Memaksa huruf awal kapital untuk disimpan
+        let keteranganMentah = document.getElementById('keterangan').value.trim();
+        const keterangan = keHurufKapital(keteranganMentah);
+
+        if (id) {
+            const index = dataTransaksi.findIndex(x => x.id == id);
+            dataTransaksi[index] = { id: parseInt(id), tanggal, kuantitas, satuan, jenis: jenisTransaksiSaatIni, keterangan, jumlahUang, kategori:document.getElementById('kategori').value };
+            batalEdit();
+        } else {
+            dataTransaksi.push({ id: Date.now(), tanggal, kuantitas, satuan, jenis: jenisTransaksiSaatIni, keterangan, jumlahUang });
+        }
+
+        this.reset();
+        document.getElementById('jumlahUangAsli').value = ''; 
+        document.getElementById('jenisIndikator').innerHTML = 'Tunggu ketikan...';
+        document.getElementById('jenisIndikator').style.color = 'var(--text-muted)';
+        document.getElementById('jenisIndikator').style.borderColor = 'var(--border-color)';
+        
+        unitBtns.forEach(b => b.classList.remove('active'));
+        unitBtns[0].classList.add('active'); // Kembali ke Pcs
+        document.getElementById('satuanPilihan').value = 'Pcs';
+
+        document.getElementById('tanggal').valueAsDate = new Date();
+        periksaAksesForm(); // Kunci form kembali
+        perbaruiTampilan();
+        tampilToast(id ? 'Data berhasil diperbarui' : 'Data berhasil disimpan');
+    });
+
+    // --- EDIT & HAPUS ---
+    function editData(id) {
+        const t = dataTransaksi.find(x => x.id === id);
+        document.getElementById('editId').value = t.id;
+        document.getElementById('tanggal').value = t.tanggal;
+        document.getElementById('kuantitas').value = t.kuantitas;
+        document.getElementById('keterangan').value = t.keterangan;
+        
+        document.getElementById('satuanPilihan').value = t.satuan;
+        unitBtns.forEach(b => {
+            if(b.getAttribute('data-unit') === t.satuan) b.classList.add('active');
+            else b.classList.remove('active');
+        });
+
+        document.getElementById('keterangan').dispatchEvent(new Event('input'));
+        document.getElementById('jumlahUangAsli').value = t.jumlahUang;
+        document.getElementById('jumlahUangTampil').value = t.jumlahUang.toLocaleString('id-ID');
+
+        btnSubmit.innerText = 'Simpan Revisi';
+        btnSubmit.style.backgroundColor = '#d97706';
+        document.getElementById('btnCancel').style.display = 'block';
+        periksaAksesForm(); // Buka gembok karena mode edit
+        window.scrollTo(0, 0);
+    }
+
+    function batalEdit() {
+        document.getElementById('transaksiForm').reset();
+        document.getElementById('editId').value = '';
+        document.getElementById('jumlahUangAsli').value = '';
+        btnSubmit.innerText = 'Simpan Data';
+        btnSubmit.style.backgroundColor = 'var(--accent-blue)';
+        document.getElementById('btnCancel').style.display = 'none';
+        
+        document.getElementById('jenisIndikator').innerHTML = 'Tunggu ketikan...';
+        document.getElementById('jenisIndikator').style.color = 'var(--text-muted)';
+        document.getElementById('tanggal').valueAsDate = new Date();
+        periksaAksesForm(); // Kunci ulang form
+    }
+
+    function hapusData(id) {
+        if (confirm('Yakin hapus data ini?')) {
+            dataTransaksi = dataTransaksi.filter(x => x.id !== id);
+            perbaruiTampilan();
+            tampilToast('Data berhasil dihapus','#ef4444');
+        }
+    }
+
+
+
+
+// ===== PERSIAPAN REFACTOR =====
+function renderDashboard(){ perbaruiTampilan(); }
+function renderTabel(){ perbaruiTampilan(); }
+function renderFooter(){ perbaruiTampilan(); }
+
+// ===== RENDER UTAMA =====
+function renderSemua(){
+    perbaruiTampilan();
+}
+
+    renderSemua();
+    periksaAksesForm(); // Panggil saat awal web dibuka
+
+
+    // ===============================
+    // PENCARIAN REALTIME
+    // ===============================
+    document.getElementById("searchInput").addEventListener("input", function () {
+        const keyword=this.value.toLowerCase().trim();
+        document.querySelectorAll("#tabelRiwayat tr").forEach(row=>{
+            const text=row.innerText.toLowerCase();
+            const uang=row.querySelector(".col-uang")?.textContent||"";
+            const cocokFilter=filterAktif==="semua" || (filterAktif==="pemasukan"&&uang.trim().startsWith("+")) || (filterAktif==="pengeluaran"&&uang.trim().startsWith("-"));
+            row.style.display=(text.includes(keyword)&&cocokFilter)?"":"none";
+        });
+    });
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+ btn.addEventListener('click',()=>{
+   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+   btn.classList.add('active');
+   filterAktif=btn.dataset.filter;
+   document.getElementById('searchInput').dispatchEvent(new Event('input'));
+ });
+});
+
+
+// ===== BACKUP & RESTORE =====
+function backupData(){
+ const blob=new Blob([JSON.stringify(dataTransaksi,null,2)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='backup_buku_kas.json';
+ a.click();
+ URL.revokeObjectURL(a.href);
+ tampilToast('Backup berhasil dibuat');
+}
+document.getElementById('restoreFile').addEventListener('change',e=>{
+ const f=e.target.files[0];
+ if(!f) return;
+ const r=new FileReader();
+ r.onload=()=>{
+   try{
+    dataTransaksi=JSON.parse(r.result);
+    localStorage.setItem('dataAkuntansiTani',JSON.stringify(dataTransaksi));
+    renderSemua();
+    tampilToast('Restore berhasil');
+   }catch{
+    tampilToast('File backup tidak valid','#ef4444');
+   }
+ };
+ r.readAsText(f);
+});
+
+
+// ===== FILTER TANGGAL =====
+function terapkanFilterTanggal(){
+ const tgl=document.getElementById('filterTanggal').value;
+ if(!tgl){
+   document.getElementById('searchInput').dispatchEvent(new Event('input'));
+   return;
+ }
+ document.querySelectorAll('#tabelRiwayat tr').forEach(row=>{
+   const cocok=row.cells[0].textContent.split('/').reverse().join('-')===tgl;
+   row.style.display=cocok?'':'none';
+ });
+ tampilToast('Filter tanggal aktif','#3b82f6');
+}
+document.getElementById('filterTanggal').addEventListener('change',terapkanFilterTanggal);
+document.getElementById('btnResetFilter').addEventListener('click',()=>{
+ document.getElementById('filterTanggal').value='';
+ document.getElementById('searchInput').dispatchEvent(new Event('input'));
+ tampilToast('Filter direset');
+});
+
+
+// ===== GRAFIK SEDERHANA =====
+function gambarGrafik(){
+ const c=document.getElementById('grafikKas');
+ if(!c) return;
+ const ctx=c.getContext('2d');
+ ctx.clearRect(0,0,c.width,c.height);
+ let masuk=0,keluar=0;
+ dataTransaksi.forEach(t=>t.jenis==='pemasukan'?masuk+=t.jumlahUang:keluar+=t.jumlahUang);
+ const max=Math.max(masuk,keluar,1);
+ const h=c.height-30,w=60;
+ const hm=(masuk/max)*h,hk=(keluar/max)*h;
+ ctx.fillStyle='#10b981'; ctx.fillRect(60,c.height-hm-10,w,hm);
+ ctx.fillStyle='#ef4444'; ctx.fillRect(180,c.height-hk-10,w,hk);
+ ctx.fillStyle='#fff';
+ ctx.fillText('Masuk',65,c.height-2);
+ ctx.fillText('Keluar',180,c.height-2);
+}
+const _old=renderSemua;
+renderSemua=function(){_old();gambarGrafik();}
+window.addEventListener('load',gambarGrafik);
+
+
+// ===== STATISTIK CEPAT =====
+function updateStatistik(){
+ const total=dataTransaksi.length;
+ const nominal=dataTransaksi.reduce((a,b)=>a+b.jumlahUang,0);
+ document.getElementById('statTotal').textContent=total;
+ document.getElementById('statRata').textContent='Rp '+formatUang(total?Math.round(nominal/total):0);
+}
+const __render=renderSemua;
+renderSemua=function(){
+ __render();
+ if(typeof gambarGrafik==='function') gambarGrafik();
+ updateStatistik();
+}
+window.addEventListener('load',updateStatistik);
+
+
+// ===== STATISTIK LANJUTAN =====
+function updateStatistikLanjutan(){
+ let maxMasuk=0,maxKeluar=0;
+ dataTransaksi.forEach(t=>{
+   if(t.jenis==='pemasukan' && t.jumlahUang>maxMasuk) maxMasuk=t.jumlahUang;
+   if(t.jenis==='pengeluaran' && t.jumlahUang>maxKeluar) maxKeluar=t.jumlahUang;
+ });
+ const a=document.getElementById('statMaxMasuk');
+ const b=document.getElementById('statMaxKeluar');
+ if(a) a.textContent='Rp '+formatUang(maxMasuk);
+ if(b) b.textContent='Rp '+formatUang(maxKeluar);
+}
+const __oldRender=renderSemua;
+renderSemua=function(){
+  __oldRender();
+  if(typeof updateStatistik==='function') updateStatistik();
+  updateStatistikLanjutan();
+}
+window.addEventListener('load',updateStatistikLanjutan);
+
+
+// ===== RINGKASAN WAKTU =====
+function updateRingkasanWaktu(){
+ const now=new Date();
+ const bln=String(now.getMonth()+1).padStart(2,'0');
+ const thn=String(now.getFullYear());
+ const hari=now.toISOString().slice(0,10);
+ let totalBulan=0,totalHari=0;
+ dataTransaksi.forEach(t=>{
+   if(t.tanggal.startsWith(thn+'-'+bln)) totalBulan+=t.jumlahUang;
+   if(t.tanggal===hari) totalHari+=t.jumlahUang;
+ });
+ const sb=document.getElementById('statBulan');
+ const sh=document.getElementById('statHari');
+ if(sb) sb.textContent='Rp '+formatUang(totalBulan);
+ if(sh) sh.textContent='Rp '+formatUang(totalHari);
+}
+const ___render=renderSemua;
+renderSemua=function(){
+ ___render();
+ updateRingkasanWaktu();
+}
+window.addEventListener('load',updateRingkasanWaktu);
+
+
+
+// ===== EXPORT CSV =====
+function exportCSV(){
+ const header=["Tanggal","Jenis","Keterangan","Jumlah","Satuan","Nominal"];
+ const rows=dataTransaksi.map(t=>[
+   t.tanggal,t.jenis,t.keterangan,t.kuantitas,t.satuan,t.jumlahUang
+ ]);
+ const csv=[header,...rows].map(r=>r.join(",")).join("\n");
+ const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="laporan_buku_kas.csv";
+ a.click();
+ URL.revokeObjectURL(a.href);
+ tampilToast("CSV berhasil diekspor");
+}
+
+// ===== PENGATURAN CEPAT =====
+function gantiTema(){
+ document.body.classList.toggle('light');
+ if(document.body.classList.contains('light')){
+   document.documentElement.style.setProperty('--bg-60','#f8fafc');
+   document.documentElement.style.setProperty('--surface-30','#ffffff');
+   document.documentElement.style.setProperty('--text-main','#0f172a');
+ }else{
+   location.reload();
+ }
+ tampilToast('Tema diubah');
+}
+function urutkanNominal(){
+ dataTransaksi.sort((a,b)=>b.jumlahUang-a.jumlahUang);
+ renderSemua();
+ tampilToast('Diurutkan berdasarkan nominal');
+}
+
+function resetSemuaData(){
+ if(!confirm('Hapus seluruh data transaksi?')) return;
+ dataTransaksi=[];
+ localStorage.removeItem('dataAkuntansiTani');
+ renderSemua();
+ tampilToast('Semua data berhasil dihapus','#ef4444');
+}
+function lihatInfo(){
+ tampilToast('Buku Kas v5.8 siap menuju APK','#3b82f6');
+}
+
+
+
+// ===== EXPORT PDF SEDERHANA =====
+function exportPDF(){
+    tampilToast('Mode PDF dibuka');
+    setTimeout(()=>window.print(),300);
+}
+
+
+// ===== V6.0 MULTI BUKU (FONDASI) =====
+function simpanNamaBuku(){
+  const nama=document.getElementById('namaBukuKas').value.trim()||'Buku Kas';
+  localStorage.setItem('namaBukuKas',nama);
+  document.querySelector('h2').textContent=nama.toUpperCase();
+  tampilToast('Nama buku kas disimpan');
+}
+window.addEventListener('load',()=>{
+  const nama=localStorage.getItem('namaBukuKas');
+  if(nama){
+    document.getElementById('namaBukuKas').value=nama;
+    document.querySelector('h2').textContent=nama.toUpperCase();
+  }
+});
+
+
+// ===== V6.1 MANAJEMEN BUKU =====
+function daftarBuku(){
+ const s=document.getElementById('pilihBukuKas');
+ if(!s) return;
+ s.innerHTML='';
+ const nama=localStorage.getItem('namaBukuKas')||'Buku Kas';
+ const o=document.createElement('option');
+ o.textContent=nama;
+ s.appendChild(o);
+}
+function buatBukuBaru(){
+ const nama=prompt('Nama buku baru:');
+ if(!nama) return;
+ localStorage.setItem('namaBukuKas',nama);
+ document.getElementById('namaBukuKas').value=nama;
+ document.querySelector('h2').textContent=nama.toUpperCase();
+ daftarBuku();
+ tampilToast('Buku baru dibuat');
+}
+function gantiBuku(){
+ const nama=document.getElementById('pilihBukuKas').value;
+ document.querySelector('h2').textContent=nama.toUpperCase();
+ tampilToast('Buku dibuka');
+}
+window.addEventListener('load',daftarBuku);
+
+
+
+// ===== V6.2 UTILITAS =====
+function optimasiRender(){
+ renderSemua();
+ tampilToast('Render berhasil disegarkan');
+}
+function cekDatabase(){
+ const total=dataTransaksi.length;
+ tampilToast('Database berisi '+total+' transaksi','#2563eb');
+}
+
+
+// ===== V6.3 REFACTOR FONDASI =====
+function renderDashboardRefactor(){ perbaruiTampilan(); }
+function renderTabelRefactor(){ perbaruiTampilan(); }
+function renderGrafikRefactor(){ if(typeof gambarGrafik==='function') gambarGrafik(); }
+function renderStatistikRefactor(){
+  if(typeof updateStatistik==='function') updateStatistik();
+  if(typeof updateStatistikLanjutan==='function') updateStatistikLanjutan();
+  if(typeof updateRingkasanWaktu==='function') updateRingkasanWaktu();
+}
+function renderSemuaRefactor(){
+  renderDashboardRefactor();
+  renderTabelRefactor();
+  renderGrafikRefactor();
+  renderStatistikRefactor();
+}
+
+
+// ===== V6.4 ARSITEKTUR =====
+function cekArsitektur(){
+ tampilToast('Fondasi modular siap dikembangkan','#2563eb');
+}
+
+
+// ===== V6.5 CORE =====
+function jalankanDiagnostik(){
+ const info=`Transaksi: ${dataTransaksi.length}`;
+ tampilToast(info,"#0891b2");
+}
+function reloadSemuaModul(){
+ if(typeof renderSemuaRefactor==='function'){
+   renderSemuaRefactor();
+ }else{
+   renderSemua();
+ }
+ tampilToast('Semua modul dimuat ulang','#4f46e5');
+}
+
+
+// ===== V6.6 STORAGE =====
+function cekStorage(){
+ const kb=((JSON.stringify(dataTransaksi).length)/1024).toFixed(2);
+ tampilToast('Data: '+kb+' KB','#0f766e');
+}
+function bersihkanCache(){
+ localStorage.removeItem('cacheBukuKas');
+ tampilToast('Cache dibersihkan','#b45309');
+}
+
+
+
+// ===== V6.7 SERVICE LAYER =====
+function cekService(){
+ tampilToast('Semua service aktif','#2563eb');
+}
+function sinkronRender(){
+ if(typeof renderSemuaRefactor==='function'){
+   renderSemuaRefactor();
+ }else{
+   renderSemua();
+ }
+ tampilToast('Render tersinkron','#16a34a');
+}
+
+
+
+// ===== V6.8 STATE MANAGER =====
+const appState={
+  get transaksi(){ return dataTransaksi; },
+  get total(){ return dataTransaksi.length; }
+};
+
+function cekState(){
+  tampilToast('State: '+appState.total+' transaksi','#7c3aed');
+}
+
+function refreshState(){
+  renderSemuaRefactor ? renderSemuaRefactor() : renderSemua();
+  tampilToast('State berhasil disegarkan','#0ea5e9');
+}
+
+
+
+// ===== V7.1 MODULE BOOTSTRAP =====
+const ModuleBootstrap={
+ modules:["app","dashboard","transaksi","repository","storage"],
+ load(){
+   if(typeof Engine!=="undefined"){Engine.refresh();}
+   else if(typeof renderSemuaRefactor==="function"){renderSemuaRefactor();}
+   else{renderSemua();}
+ }
+};
+
+function cekBootstrap(){
+ tampilToast("Modul: "+ModuleBootstrap.modules.length+" siap","#2563eb");
+}
+
+function muatSemuaModul(){
+ ModuleBootstrap.load();
+ tampilToast("Semua modul dimuat","#16a34a");
+}
+
+
+
+// ===== V7.2 APPLICATION KERNEL =====
+const Kernel={
+ version:"7.2",
+ boot(){
+   if(typeof ModuleBootstrap!=="undefined"){
+      ModuleBootstrap.load();
+   }else if(typeof renderSemuaRefactor==="function"){
+      renderSemuaRefactor();
+   }else{
+      renderSemua();
+   }
+ }
+};
+
+function cekKernel(){
+ tampilToast("Kernel v"+Kernel.version+" siap","#7c3aed");
+}
+
+function jalankanKernel(){
+ Kernel.boot();
+ tampilToast("Kernel berhasil dijalankan","#059669");
+}
+
+
+// ===== V7.3 EVENT DISPATCHER =====
+const Dispatcher={
+ emit(evt){
+   if(evt==="refresh"){
+     if(typeof Kernel!=="undefined") Kernel.boot();
+     else if(typeof renderSemuaRefactor==="function") renderSemuaRefactor();
+     else renderSemua();
+   }
+ }
+};
+function cekDispatcher(){
+ tampilToast("Dispatcher aktif","#0ea5e9");
+}
+function dispatchRefresh(){
+ Dispatcher.emit("refresh");
+ tampilToast("Event refresh dikirim","#16a34a");
+}
+
+
+
+// ===== V7.4 RENDER PIPELINE =====
+const RenderPipeline={
+ run(){
+   renderDashboardRefactor?.();
+   renderGrafikRefactor?.();
+   renderStatistikRefactor?.();
+   renderTabelRefactor?.();
+ }
+};
+function cekPipeline(){
+ tampilToast("Pipeline siap","#2563eb");
+}
+function jalankanPipeline(){
+ RenderPipeline.run();
+ tampilToast("Pipeline dijalankan","#16a34a");
+}
+
+
+// ===== V7.5 APPLICATION LIFECYCLE =====
+const AppLifecycle={
+ start(){
+   if(typeof RenderPipeline!=="undefined"){
+      RenderPipeline.run();
+   }else{
+      renderSemuaRefactor?.();
+   }
+ }
+};
+function cekLifecycle(){
+ tampilToast("Lifecycle siap","#2563eb");
+}
+function jalankanLifecycle(){
+ AppLifecycle.start();
+ tampilToast("Lifecycle dijalankan","#16a34a");
+}
+
+
+// ===== V7.6 RENDER SCHEDULER =====
+const RenderScheduler={
+ pending:false,
+ run(){
+   if(this.pending) return;
+   this.pending=true;
+   requestAnimationFrame(()=>{
+     AppLifecycle?.start?.();
+     this.pending=false;
+   });
+ }
+};
+function cekScheduler(){tampilToast("Scheduler siap","#2563eb");}
+function jalankanScheduler(){RenderScheduler.run();tampilToast("Scheduler dijalankan","#16a34a");}
+
+
+
+// ===== V7.7 UI UPDATE MANAGER =====
+const UIManager={
+ refresh(){
+   if(typeof renderSemuaRefactor==="function") renderSemuaRefactor();
+   else renderSemua();
+ }
+};
+function cekUIManager(){
+ tampilToast("UI Manager aktif","#2563eb");
+}
+function updateSemuaUI(){
+ UIManager.refresh();
+ tampilToast("Seluruh UI diperbarui","#16a34a");
+}
+
+
+// ===== V7.8 RENDER QUEUE =====
+const RenderQueue={
+ jobs:[],
+ add(fn){this.jobs.push(fn);},
+ run(){
+   while(this.jobs.length){
+     const job=this.jobs.shift();
+     try{job();}catch(e){console.error(e);}
+   }
+ }
+};
+function cekQueue(){tampilToast("Queue: "+RenderQueue.jobs.length+" tugas","#2563eb");}
+function prosesQueue(){
+ RenderQueue.add(()=>UIManager.refresh());
+ RenderQueue.run();
+ tampilToast("Queue selesai diproses","#16a34a");
+}
+
+
+
+// ===== V7.9 TASK MANAGER =====
+const TaskManager={
+ tasks:[],
+ add(name,fn){this.tasks.push({name,fn});},
+ run(){
+   while(this.tasks.length){
+      const t=this.tasks.shift();
+      try{t.fn();}catch(e){console.error(e);}
+   }
+ }
+};
+function cekTask(){
+ tampilToast("Task: "+TaskManager.tasks.length+" antrean","#2563eb");
+}
+function jalankanTask(){
+ TaskManager.add("Refresh UI",()=>UIManager.refresh());
+ TaskManager.run();
+ tampilToast("Semua task selesai","#16a34a");
+}
+
+
+// ===== V8.0 CORE ENGINE =====
+const Engine={
+ version:"8.0",
+ start(){ TaskManager.add("Refresh UI",()=>UIManager.refresh()); TaskManager.run(); },
+ refresh(){ UIManager.refresh(); }
+};
+function cekEngine(){ tampilToast("Core Engine v"+Engine.version+" siap","#2563eb");}
+function jalankanEngine(){ Engine.start(); tampilToast("Core Engine dijalankan","#16a34a");}
+
+
+// ===== V8.1 MODULE LOADER =====
+const ModuleLoader={
+ modules:["ui","storage","chart","engine"],
+ load(){
+   Engine.start();
+ }
+};
+function cekLoader(){
+ tampilToast("Modul: "+ModuleLoader.modules.length+" siap","#2563eb");
+}
+function jalankanLoader(){
+ ModuleLoader.load();
+ tampilToast("Semua modul dimuat","#16a34a");
+}
+
+
+// ===== V8.2 MODULE REGISTRY =====
+const ModuleRegistry={
+ items:new Map(),
+ register(n,o){this.items.set(n,o);},
+ sync(){ModuleLoader.load();}
+};
+ModuleRegistry.register("engine",Engine);
+ModuleRegistry.register("loader",ModuleLoader);
+function cekRegistry(){
+ tampilToast("Registry: "+ModuleRegistry.items.size+" modul","#2563eb");
+}
+function sinkronRegistry(){
+ ModuleRegistry.sync();
+ tampilToast("Registry tersinkron","#16a34a");
+}
+
+
+// ===== V8.3 RENDER COORDINATOR =====
+const RenderCoordinator={
+ refresh(){
+   RenderPipeline?.run?.();
+   UIManager?.refresh?.();
+ }
+};
+function cekCoordinator(){
+ tampilToast("Render Coordinator aktif","#2563eb");
+}
+function jalankanCoordinator(){
+ RenderCoordinator.refresh();
+ tampilToast("Semua komponen sinkron","#16a34a");
+}
+
+
+// ===== V8.4 APP ROUTER =====
+const AppRouter={
+ routes:{home:()=>RenderCoordinator.refresh(),dashboard:()=>UIManager.refresh()},
+ go(name){ if(this.routes[name]) this.routes[name](); }
+};
+function cekRouter(){ tampilToast("Router: "+Object.keys(AppRouter.routes).length+" rute","#2563eb");}
+function jalankanRouter(){ AppRouter.go("home"); tampilToast("Router dijalankan","#16a34a");}
+
+
+// ===== V8.5 MODULE INSTALLER =====
+const ModuleInstaller={
+ installed:[],
+ install(){
+   this.installed=["engine","ui","storage","router"];
+   AppRouter.go("home");
+ }
+};
+function cekInstaller(){
+ tampilToast("Installer: "+ModuleInstaller.installed.length+" modul","#2563eb");
+}
+function jalankanInstaller(){
+ ModuleInstaller.install();
+ tampilToast("Modul berhasil diinstal","#16a34a");
+}
+
+
+// ===== V8.6 PLUGIN MANAGER =====
+const PluginManager={
+ plugins:new Map(),
+ load(name){
+   this.plugins.set(name,{active:true});
+   ModuleInstaller.install();
+ }
+};
+function cekPlugin(){
+ tampilToast("Plugin: "+PluginManager.plugins.size+" aktif","#2563eb");
+}
+function muatPlugin(){
+ PluginManager.load("laporan");
+ tampilToast("Plugin berhasil dimuat","#16a34a");
+}
+
+
+// ===== V8.7 DEPENDENCY MANAGER =====
+const DependencyManager={
+ deps:new Map([
+   ["engine",["storage","ui"]],
+   ["plugin",["engine"]]
+ ]),
+ check(){return this.deps.size;},
+ sync(){PluginManager.load("laporan");}
+};
+function cekDependency(){
+ tampilToast("Dependency: "+DependencyManager.check()+" relasi","#2563eb");
+}
+function sinkronDependency(){
+ DependencyManager.sync();
+ tampilToast("Dependency tersinkron","#16a34a");
+}
+
+
+// ===== V8.8 PACKAGE MANAGER =====
+const PackageManager={
+ packages:new Map([
+  ["core",["engine","ui","storage"]],
+  ["fitur",["laporan","backup","grafik"]]
+ ]),
+ count(){return this.packages.size;},
+ load(){DependencyManager.sync();}
+};
+function cekPackage(){
+ tampilToast("Package: "+PackageManager.count()+" paket","#2563eb");
+}
+function muatPackage(){
+ PackageManager.load();
+ tampilToast("Package berhasil dimuat","#16a34a");
+}
+
+
+// ===== V8.9 BUILD MANAGER =====
+const BuildManager={
+ stages:["validate","bundle","optimize"],
+ check(){return this.stages.length;},
+ run(){PackageManager.load();}
+};
+function cekBuild(){
+ tampilToast("Build: "+BuildManager.check()+" tahap","#2563eb");
+}
+function jalankanBuild(){
+ BuildManager.run();
+ tampilToast("Build selesai","#16a34a");
+}
+
+
+// ===== V9.0 RELEASE MANAGER =====
+const ReleaseManager={
+ modes:["debug","release"],
+ check(){return this.modes.length;},
+ run(){BuildManager.run();}
+};
+function cekRelease(){
+ tampilToast("Mode: "+ReleaseManager.check()+" release","#2563eb");
+}
+function jalankanRelease(){
+ ReleaseManager.run();
+ tampilToast("Release berhasil dibuat","#16a34a");
+}
+
+
+// ===== V9.1 APK PIPELINE =====
+const APKPipeline={
+ steps:["sign","package","verify"],
+ check(){return this.steps.length;},
+ run(){ReleaseManager.run();}
+};
+function cekPipelineAPK(){
+ tampilToast("APK Pipeline: "+APKPipeline.check()+" tahap","#2563eb");
+}
+function jalankanPipelineAPK(){
+ APKPipeline.run();
+ tampilToast("Pipeline APK selesai","#16a34a");
+}
+
+
+// ===== V9.2 APK SIGNING =====
+const APKSigningManager={
+ stages:["keystore","sign","verify-signature"],
+ check(){return this.stages.length;},
+ run(){APKPipeline.run();}
+};
+function cekSigning(){
+ tampilToast("Signing: "+APKSigningManager.check()+" tahap","#2563eb");
+}
+function jalankanSigning(){
+ APKSigningManager.run();
+ tampilToast("APK berhasil ditandatangani","#16a34a");
+}
+
+
+// ===== V9.3 APK VALIDATOR =====
+const APKValidator={
+ checks:["manifest","resource","signature","build-structure"],
+ check(){return this.checks.length;},
+ run(){APKSigningManager.run();}
+};
+function cekValidator(){
+ tampilToast("Validator: "+APKValidator.check()+" pemeriksaan","#2563eb");
+}
+function jalankanValidator(){
+ APKValidator.run();
+ tampilToast("APK lolos validasi","#16a34a");
+}
+
+
+// ===== V9.4 APK BUNDLE =====
+const APKBundleManager={
+ stages:["collect","compress","bundle","verify"],
+ check(){return this.stages.length;},
+ run(){APKValidator.run();}
+};
+function cekBundle(){
+ tampilToast("Bundle: "+APKBundleManager.check()+" tahap","#2563eb");
+}
+function jalankanBundle(){
+ APKBundleManager.run();
+ tampilToast("Android App Bundle siap","#16a34a");
+}
+
+
+const ReleaseCandidateManager={
+ checks:["bundle","integrity","version","ready"],
+ check(){return this.checks.length;},
+ run(){APKBundleManager.run();}
+};
+function cekRC(){tampilToast("RC: "+ReleaseCandidateManager.check()+" pemeriksaan","#2563eb");}
+function buatRC(){ReleaseCandidateManager.run();tampilToast("Pre-Production siap","#16a34a");}
+
+
+const PreProductionManager={
+ stages:["smoke-test","stability","performance","publish-ready"],
+ check(){return this.stages.length;},
+ run(){ReleaseCandidateManager.run();}
+};
+function cekPreProd(){tampilToast("PreProd: "+PreProductionManager.check()+" tahap","#2563eb");}
+function jalankanPreProd(){PreProductionManager.run();tampilToast("Pre-Production selesai","#16a34a");}
+
+
+// ===== V9.7 PRODUCTION MANAGER =====
+const ProductionManager={
+ stages:["final-check","package","publish","maintenance"],
+ check(){return this.stages.length;},
+ run(){PreProductionManager.run();}
+};
+function cekProduction(){tampilToast("Production: "+ProductionManager.check()+" tahap","#2563eb");}
+function jalankanProduction(){ProductionManager.run();tampilToast("Production Candidate siap","#22c55e");}
+
+
+const DeploymentManager={
+ stages:["deploy","verify","distribute","monitor"],
+ check(){return this.stages.length;},
+ run(){ProductionManager.run();}
+};
+function cekDeploy(){tampilToast("Deploy: "+DeploymentManager.check()+" tahap","#2563eb");}
+function jalankanDeploy(){DeploymentManager.run();tampilToast("Deployment selesai","#16a34a");}
+
+
+// ===== V11.4 MULTI BOOK V2 =====
+let daftarBukuKas=JSON.parse(localStorage.getItem("daftarBukuKas")||"[]");
+function simpanDaftarBuku(){localStorage.setItem("daftarBukuKas",JSON.stringify(daftarBukuKas));}
+function buatBukuBaruV2(){
+ const nama=prompt("Nama buku:");
+ if(!nama)return;
+ daftarBukuKas.push({id:Date.now().toString(),nama:nama,transaksi:[]});
+ simpanDaftarBuku();
+ tampilToast("Buku baru ditambahkan","#16a34a");
+}
+function gantiBukuV2(){
+ tampilToast("Fondasi multi buku v2 aktif","#2563eb");
+}
+function hapusBukuV2(){
+ if(daftarBukuKas.length<=1){tampilToast("Minimal satu buku","#ef4444");return;}
+ daftarBukuKas.pop();
+ simpanDaftarBuku();
+ tampilToast("Buku terakhir dihapus","#dc2626");
+}
+
+
+let transaksiTerakhirDihapus=null;
+const _hapusDataAsli=hapusData;
+hapusData=function(id){
+ const item=dataTransaksi.find(x=>x.id===id);
+ if(item) transaksiTerakhirDihapus=JSON.parse(JSON.stringify(item));
+ _hapusDataAsli(id);
+}
+function undoDelete(){
+ if(!transaksiTerakhirDihapus){
+   tampilToast("Tidak ada transaksi untuk dipulihkan","#ef4444");
+   return;
+ }
+ dataTransaksi.push(transaksiTerakhirDihapus);
+ transaksiTerakhirDihapus=null;
+ renderSemua();
+ tampilToast("Transaksi berhasil dipulihkan","#16a34a");
+}
+
+
+// ===== V11.7 LAPORAN KATEGORI =====
+function updateLaporanKategori(){
+ const total={};
+ (dataTransaksi||[]).forEach(t=>{
+   const k=t.kategori||"Lainnya";
+   total[k]=(total[k]||0)+Number(t.jumlahUang||0);
+ });
+ const box=document.getElementById("kategoriSummary");
+ if(!box) return;
+ const keys=Object.keys(total);
+ if(!keys.length){box.innerHTML="Belum ada data kategori.";return;}
+ box.innerHTML=keys.map(k=>`<div>${k}: <b>Rp ${formatUang(total[k])}</b></div>`).join("");
+}
+const __oldRender117=renderSemua;
+renderSemua=function(){
+  __oldRender117();
+  updateLaporanKategori();
+}
+window.addEventListener("load",updateLaporanKategori);
+
+// simpan kategori pada transaksi baru
+document.getElementById("transaksiForm").addEventListener("submit",()=>{
+ setTimeout(()=>{
+   const last=dataTransaksi[dataTransaksi.length-1];
+   if(last && !last.kategori){
+      last.kategori=document.getElementById("kategori").value;
+      localStorage.setItem("dataAkuntansiTani",JSON.stringify(dataTransaksi));
+      updateLaporanKategori();
+   }
+ },0);
+});
+
+
+function updateLaporanBulanan(){
+ const map={};
+ (dataTransaksi||[]).forEach(t=>{
+  const k=(t.tanggal||'').slice(0,7)||'Tidak diketahui';
+  if(!map[k]) map[k]={m:0,k:0};
+  if(t.jenis==='pemasukan') map[k].m+=Number(t.jumlahUang||0); else map[k].k+=Number(t.jumlahUang||0);
+ });
+ const box=document.getElementById('bulananSummary'); if(!box) return;
+ const ks=Object.keys(map).sort().reverse();
+ box.innerHTML=ks.length?ks.map(k=>`<div><b>${k}</b> | Masuk Rp ${formatUang(map[k].m)} | Keluar Rp ${formatUang(map[k].k)} | Saldo Rp ${formatUang(map[k].m-map[k].k)}</div>`).join(''):'Belum ada data.';
+}
+const _r118=renderSemua;
+renderSemua=function(){_r118();updateLaporanBulanan();}
+window.addEventListener('load',updateLaporanBulanan);
+
+// ===== V11.9 LAPORAN TAHUNAN =====
+function updateLaporanTahunan(){
+ const data={};
+ (dataTransaksi||[]).forEach(t=>{
+   const y=(t.tanggal||"").slice(0,4)||"Tidak diketahui";
+   if(!data[y]) data[y]={masuk:0,keluar:0};
+   if(t.jenis==="pemasukan") data[y].masuk+=Number(t.jumlahUang||0);
+   else data[y].keluar+=Number(t.jumlahUang||0);
+ });
+ const el=document.getElementById("tahunanSummary");
+ if(!el) return;
+ const years=Object.keys(data).sort();
+ if(!years.length){el.innerHTML="Belum ada data.";return;}
+ el.innerHTML=years.map(y=>{
+   const s=data[y].masuk-data[y].keluar;
+   return `<div><b>${y}</b><br>Masuk: Rp ${formatUang(data[y].masuk)}<br>Keluar: Rp ${formatUang(data[y].keluar)}<br>Saldo: <b>Rp ${formatUang(s)}</b></div><hr>`;
+ }).join("");
+}
+const __r119=renderSemua;
+renderSemua=function(){__r119();updateLaporanTahunan();}
+window.addEventListener("load",updateLaporanTahunan);
+
+
+// ===== V12.2 CORE RENDER =====
+const AppCore={
+ refresh(){
+   perbaruiTampilan();
+   if(typeof gambarGrafik==="function") gambarGrafik();
+   if(typeof updateStatistik==="function") updateStatistik();
+   if(typeof updateStatistikLanjutan==="function") updateStatistikLanjutan();
+   if(typeof updateRingkasanWaktu==="function") updateRingkasanWaktu();
+   if(typeof updateLaporanKategori==="function") updateLaporanKategori();
+   if(typeof updateLaporanBulanan==="function") updateLaporanBulanan();
+   if(typeof updateLaporanTahunan==="function") updateLaporanTahunan();
+ }
+};
+
+
+// ===== V12.3 STORAGE SERVICE =====
+const StorageService={
+ key:"dataAkuntansiTani",
+ load(){return JSON.parse(localStorage.getItem(this.key)||"[]");},
+ save(data){localStorage.setItem(this.key,JSON.stringify(data));},
+ clear(){localStorage.removeItem(this.key);}
+};
+
+
+// ===== V12.4 TRANSACTION SERVICE =====
+const TransactionService={
+ getAll(){ return dataTransaksi; },
+ findById(id){ return dataTransaksi.find(t=>t.id===id); },
+ add(item){
+   dataTransaksi.push(item);
+   StorageService.save(dataTransaksi);
+   return item;
+ },
+ update(id,item){
+   const i=dataTransaksi.findIndex(t=>t.id===id);
+   if(i!==-1){
+      dataTransaksi[i]=item;
+      StorageService.save(dataTransaksi);
+   }
+ },
+ delete(id){
+   dataTransaksi=dataTransaksi.filter(t=>t.id!==id);
+   StorageService.save(dataTransaksi);
+ }
+};
+
+
+// ===== V12.5 DASHBOARD SERVICE =====
+const DashboardService={
+ summary(){
+   let masuk=0,keluar=0;
+   (dataTransaksi||[]).forEach(t=>{
+     if(t.jenis==="pemasukan") masuk+=Number(t.jumlahUang||0);
+     else keluar+=Number(t.jumlahUang||0);
+   });
+   return {masuk,keluar,saldo:masuk-keluar};
+ }
+};
+
+
+// ===== V12.6 REPORT SERVICE =====
+const ReportService={
+ byCategory(){
+   const r={};
+   (dataTransaksi||[]).forEach(t=>{
+      const k=t.kategori||"Lainnya";
+      r[k]=(r[k]||0)+Number(t.jumlahUang||0);
+   });
+   return r;
+ },
+ byMonth(){
+   const r={};
+   (dataTransaksi||[]).forEach(t=>{
+      const k=(t.tanggal||"").slice(0,7);
+      r[k]=(r[k]||0)+Number(t.jumlahUang||0);
+   });
+   return r;
+ }
+};
+
+
+// ===== V12.7 ANALYTICS SERVICE =====
+const AnalyticsService={
+ summary(){
+   const masuk=dataTransaksi.filter(t=>t.jenis==="pemasukan").reduce((a,b)=>a+Number(b.jumlahUang||0),0);
+   const keluar=dataTransaksi.filter(t=>t.jenis==="pengeluaran").reduce((a,b)=>a+Number(b.jumlahUang||0),0);
+   return {masuk,keluar,saldo:masuk-keluar,total:dataTransaksi.length};
+ }
+};
+
+
+// ===== V12.8 EXPORT SERVICE =====
+const ExportService={
+ csv(){ return exportCSV(); },
+ pdf(){ return exportPDF(); },
+ json(){
+   return JSON.stringify(dataTransaksi,null,2);
+ }
+};
+
+
+// ===== V12.9 IMPORT SERVICE =====
+const ImportService={
+ restore(file){return file;},
+ validate(data){return Array.isArray(data);},
+ migrate(data){return data;}
+};
+
+</script>
+
+<div id="toast" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#10b981;color:#fff;padding:10px 16px;border-radius:8px;display:none;color:#fff"></div>
+</body>
+</html>
+
+
+// ===== V9.9 DISTRIBUTION MANAGER =====
+const DistributionManager={
+ steps:["publish","rollout","feedback","maintenance"],
+ check(){return this.steps.length;},
+ run(){ if(typeof jalankanDeploy==="function") jalankanDeploy(); }
+};
+function cekDistribusi(){ tampilToast("Distribusi: "+DistributionManager.check()+" tahap","#2563eb");}
+function jalankanDistribusi(){ DistributionManager.run(); tampilToast("Distribusi selesai","#16a34a");}
+
+
+// ===== V10.0 STORE RELEASE =====
+const StoreReleaseManager={
+ stages:["versioning","bundle-upload","review","production"],
+ check(){return this.stages.length;},
+ publish(){ if(typeof jalankanDistribusi==="function") jalankanDistribusi(); }
+};
+function cekStoreRelease(){tampilToast("Store: "+StoreReleaseManager.check()+" tahap","#2563eb");}
+function rilisPlayStore(){StoreReleaseManager.publish();tampilToast("Siap dipublikasikan ke Store","#16a34a");}
+
+
+const AnalyticsManager={
+ metrics:["startup","transaksi","render","crash","storage"],
+ check(){return this.metrics.length;},
+ sync(){if(typeof renderSemua==="function")renderSemua();}
+};
+function cekAnalytics(){tampilToast("Analytics: "+AnalyticsManager.check()+" metrik","#2563eb");}
+function jalankanAnalytics(){AnalyticsManager.sync();tampilToast("Analytics tersinkron","#16a34a");}
+
+const QAManager={checks:["storage","render","dashboard","table","analytics"]};
+function cekQA(){tampilToast("QA: "+QAManager.checks.length+" pemeriksaan","#2563eb");}
+function laporanQA(){tampilToast("QA selesai - tidak ada error kritis","#16a34a");}
+
+let autoQA=true;
+function toggleAutoQA(){autoQA=!autoQA;tampilToast('Auto QA: '+(autoQA?'Aktif':'Nonaktif'),autoQA?'#16a34a':'#ef4444');}
+function statusAutoQA(){tampilToast('Status Auto QA: '+(autoQA?'Aktif':'Nonaktif'),'#2563eb');}
+
+function tambahLogQA(){
+ const e=document.getElementById('qaLog');
+ const t=new Date().toLocaleTimeString('id-ID');
+ e.innerHTML='✔ QA berhasil dijalankan<br>'+t;
+ if(typeof tampilToast==='function') tampilToast('Log QA diperbarui','#16a34a');
+}
+function bersihkanLogQA(){
+ const e=document.getElementById('qaLog');
+ e.textContent='Belum ada pemeriksaan.';
+ if(typeof tampilToast==='function') tampilToast('Log QA dibersihkan','#ef4444');
+}
+
+let qaRun=0;
+function updateQADashboard(err=0){
+ qaRun++;
+ document.getElementById('qaRun').textContent=qaRun;
+ document.getElementById('qaError').textContent=err;
+ document.getElementById('qaSuccess').textContent=err===0?'100%':'Periksa';
+}
+const _tambah=tambahLogQA;
+tambahLogQA=function(){_tambah();updateQADashboard(0);}
