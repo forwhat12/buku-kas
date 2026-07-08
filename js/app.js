@@ -1,19 +1,18 @@
 // js/app.js
 import { getData } from './storage.js';
 import { hitungDashboard } from './dashboard.js';
+import { handleFormSubmit } from './transaction.js'; // TAMBAHKAN IMPORT INI
 
 const formatUang = (angka) => new Intl.NumberFormat('id-ID').format(angka);
 
 const renderUI = () => {
+    // ... (kode renderUI Anda tetap sama seperti sebelumnya) ...
     const data = getData();
     const stats = hitungDashboard();
-    
-    // 1. Update Dashboard
     document.getElementById('dashPemasukan').innerText = 'Rp ' + formatUang(stats.pemasukan);
     document.getElementById('dashPengeluaran').innerText = 'Rp ' + formatUang(stats.pengeluaran);
     document.getElementById('dashSaldo').innerText = 'Rp ' + formatUang(stats.saldoBersih);
     
-    // 2. Update Tabel Riwayat
     const tabelBody = document.getElementById('tabelRiwayat');
     if (!tabelBody) return;
     tabelBody.innerHTML = '';
@@ -33,21 +32,18 @@ const renderUI = () => {
     });
 };
 
-// --- Fungsi untuk memunculkan keyboard ---
 const initEventHandlers = () => {
+    // ... (kode initEventHandlers Anda tetap sama seperti sebelumnya) ...
     const ketInput = document.getElementById('keterangan');
     const qtyInput = document.getElementById('kuantitas');
     const uangInput = document.getElementById('jumlahUangTampil');
-
     const periksaAksesForm = () => {
         let teks = ketInput.value.trim().toUpperCase();
         let validB = teks.startsWith('B ') || teks === 'B';
         let validH = teks.startsWith('H ') || teks === 'H';
-        
         qtyInput.disabled = !(validB || validH);
         uangInput.disabled = !(!qtyInput.disabled && qtyInput.value > 0);
     };
-
     ketInput.addEventListener('input', periksaAksesForm);
     qtyInput.addEventListener('input', periksaAksesForm);
 };
@@ -56,4 +52,12 @@ const initEventHandlers = () => {
 document.addEventListener('DOMContentLoaded', () => {
     renderUI();
     initEventHandlers(); 
+
+    // --- TEMPEL DI SINI ---
+    const form = document.getElementById('transaksiForm');
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+    }
+    window.addEventListener('dataUpdated', renderUI);
+    // ----------------------
 });
