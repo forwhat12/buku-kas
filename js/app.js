@@ -1,3 +1,4 @@
+alert("JS Jalan!");
 // js/app.js
 import { getData } from './storage.js';
 import { hitungDashboard } from './dashboard.js';
